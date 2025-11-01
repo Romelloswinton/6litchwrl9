@@ -1,0 +1,145 @@
+/* Galaxy App Styles */
+#root {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #000011;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Galaxy Scene Styles */
+.galaxy-scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Leva Controls Styling */
+.leva-c_lgT7RM {
+  background: rgba(0, 0, 0, 0.8) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(135, 206, 235, 0.3);
+  border-radius: 8px;
+}
+
+.leva-c_tUBZ1r {
+  color: #87ceeb !important;
+}
+
+/* Loading and Error States */
+.galaxy-loading,
+.galaxy-error {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000011;
+  color: #87ceeb;
+  z-index: 1000;
+}
+
+/* Interactive Elements */
+.galaxy-ui {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  pointer-events: auto;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .galaxy-ui {
+    top: 10px;
+    right: 10px;
+  }
+  
+  .leva-c_lgT7RM {
+    max-width: calc(100vw - 20px);
+  }
+}
+
+/* Performance Optimizations */
+.galaxy-canvas {
+  touch-action: none;
+  user-select: none;
+}
+
+/* Root must create a positioning context for absolute children */
+#root-stage {
+  position: relative;
+  width: 100vw; 
+  height: 100vh;
+  overflow: hidden;
+  background: #000011; /* ok to keep; R3F is opaque too */
+}
+
+/* Make BOTH canvases fill and be positioned so z-index applies */
+#background-canvas,
+#foreground-canvas-container,
+#ui-controls,
+#root-stage > canvas { /* R3F renders a <canvas> under the hood */
+  position: absolute;
+  inset: 0;
+}
+
+/* Order: background < foreground < UI */
+#background-canvas,
+#root-stage > canvas { 
+  z-index: 1; /* R3F canvas */
+}          
+#foreground-canvas-container { 
+  z-index: 10; /* Spline */
+} 
+#ui-controls { 
+  z-index: 1000; /* UI */
+}               
+
+/* Make Spline actually transparent + stretch its internal canvas */
+spline-viewer,
+spline-viewer canvas {
+  background: transparent !important;
+}
+spline-viewer {
+  display: block;           /* ensure it can fill */
+  width: 100%; height: 100%;
+}
+
+/* Safety: avoid accidental stacking-contexts on containers */
+#root-stage, #foreground-canvas-container {
+  transform: none;
+  filter: none;
+  opacity: 1;
+  mix-blend-mode: normal;
+  isolation: auto;
+}
+
+/* Smooth Transitions - Exclude canvas elements */
+*:not(canvas):not(spline-viewer) {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Custom Scrollbars for Dark Theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(135, 206, 235, 0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(135, 206, 235, 0.7);
+}

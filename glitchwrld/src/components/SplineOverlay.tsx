@@ -1,0 +1,406 @@
+import Spline from '@splinetool/react-spline'
+import { useHybridStore } from '../stores/hybridStore'
+import { useCallback, useRef, useEffect } from 'react'
+import { SolarSystemGenerator } from '../utils/galaxy/solarSystemGenerator'
+import { SplineHelpers } from '../utils/spline/splineHelpers'
+import * as THREE from 'three'
+
+// Spline component that renders OUTSIDE of React Three Fiber Canvas
+export function SplineOverlay() {
+  const {
+    splineScene,
+    layers,
+    sceneMode,
+    galaxyRadius,
+    spiralArms,
+    spiralTightness,
+    particleCount,
+    rotationSpeed,
+    isAnimating,
+    setHoveredObject,
+    setSelectedObject
+  } = useHybridStore()
+  const splineRef = useRef<any>(null)
+  
+  const showSplineModels = layers.spline.visible
+  console.log('🎭 SplineOverlay render:', { showSplineModels, sceneMode, splineScene })
+  
+  // Add effect to track state changes
+  useEffect(() => {
+    console.log('🔄 SplineOverlay state changed:', { showSplineModels, sceneMode })
+  }, [showSplineModels, sceneMode])
+
+  // Store event handler references for cleanup
+  const contextLostHandler = useCallback((event: any) => {
+    console.warn('⚠️ Spline WebGL context lost!', event)
+    event.preventDefault()
+  }, [])
+
+  const contextRestoredHandler = useCallback(() => {
+    console.log('✅ Spline WebGL context restored!')
+    // Re-apply transparency settings after context restore
+    if (splineRef.current?.renderer) {
+      splineRef.current.renderer.setClearColor(0x000000, 0)
+      splineRef.current.renderer.setClearAlpha(0)
+    }
+  }, [])
+
+  const onLoad = useCallback((spline: any) => {
+    splineRef.current = spline
+    console.log('✅ Spline foreground canvas loaded successfully:', spline)
+    console.log('🌟 Galaxy background should now be visible behind Spline!')
+    
+    // Expose spline app globally for focus controls and debugging
+    ;(window as any).splineApp = spline
+    ;(window as any).splineRef = spline
+    
+    // Expose camera for starfield synchronization
+    if (spline.camera) {
+      ;(window as any).r3fCamera = spline.camera
+    }
+    
+    // Force transparent rendering for foreground canvas
+    if (spline && spline.renderer) {
+      console.log('🎨 Configuring Spline renderer for transparent foreground...')
+      
+      // Add WebGL context lost/restore listeners
+      const canvas = spline.renderer.domElement
+      if (canvas) {
+        canvas.addEventListener('webglcontextlost', contextLostHandler)
+        canvas.addEventListener('webglcontextrestored', contextRestoredHandler)
+      }
+      
+      // Validate renderer dimensions before applying settings
+      const size = spline.renderer.getSize({})
+      if (size.width === 0 || size.height === 0) {
+        console.error('❌ Spline renderer has zero dimensions:', size)
+        return
+      }
+      
+      // Enable alpha blending for foreground layer
+      spline.renderer.setClearColor(0x000000, 0) // Fully transparent clear color
+      spline.renderer.setClearAlpha(0) // Zero alpha
+      spline.renderer.autoClear = true
+      spline.renderer.sortObjects = true
+      
+      // Configure WebGL context for transparency
+      if (spline.renderer.getContext) {
+        const gl = spline.renderer.getContext()
+        if (gl && !gl.isContextLost()) {
+          gl.enable(gl.BLEND)
+          gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+        }
+      }
+      
+      // Style the canvas element
+      if (spline.renderer.domElement) {
+        spline.renderer.domElement.style.background = 'transparent'
+        spline.renderer.domElement.style.backgroundColor = 'transparent'
+        spline.renderer.domElement.style.pointerEvents = 'auto'
+      }
+    }
+    
+    // Ensure scene has no background
+    if (spline && spline.scene) {
+      console.log('🎭 Ensuring Spline scene transparency for layering')
+      spline.scene.background = null
+      spline.scene.environment = null
+      
+      // Make sure fog is disabled to avoid blocking background
+      spline.scene.fog = null
+    }
+    
+    // Configure canvas element directly
+    if (spline && spline.canvas) {
+      spline.canvas.style.background = 'none'
+      spline.canvas.style.backgroundColor = 'transparent'
+      spline.canvas.style.mixBlendMode = 'normal' // Avoid blend mode conflicts
+    }
+    
+    // Position objects based on scene mode
+    if (sceneMode === 'solarSystem') {
+      positionSplineObjectsAtPlanets(spline)
+    } else if (sceneMode === 'galaxy') {
+      alignSplineObjectsWithGalaxy(spline)
+    }
+  }, [sceneMode])
+
+  const onMouseDown = useCallback((e: any) => {
+    console.log('🖱️ Spline mouse down:', e)
+    if (e.target?.name) {
+      setSelectedObject(e.target.name)
+      console.log('Spline object clicked:', e.target.name)
+    }
+  }, [setSelectedObject])
+
+  const onMouseMove = useCallback((e: any) => {
+    if (e.target?.name) {
+      setHoveredObject(e.target.name)
+      document.body.style.cursor = 'pointer'
+    } else {
+      setHoveredObject(null)
+      document.body.style.cursor = 'default'
+    }
+  }, [setHoveredObject])
+
+  const onError = useCallback((error: any) => {
+    console.error('❌ Spline loading error:', error)
+  }, [])
+
+  // Function to position Spline objects at planet locations
+  const positionSplineObjectsAtPlanets = useCallback((splineApp: any) => {
+    if (!splineApp) return
+
+    try {
+      const solarSystem = new SolarSystemGenerator({
+        scale: galaxyRadius * 0.5,
+        showOrbits: true,
+        showMoons: true,
+        timeScale: Math.abs(rotationSpeed) * 1000
+      })
+
+      const planets = solarSystem.getPlanets()
+      console.log('🪐 Positioning Spline objects at planets:', planets)
+
+      // Example: Position first Spline object at Earth's location
+      const earth = planets.find(p => p.name === 'Earth')
+      if (earth && splineApp.findObjectByName) {
+        const splineObject = splineApp.findObjectByName('Scene') // Common Spline root object
+        if (splineObject && splineObject.position) {
+          // Scale positions to screen coordinates (rough approximation)
+          const screenScale = 200 // Adjust based on your Spline scene
+          splineObject.position.x = earth.position.x * screenScale
+          splineObject.position.y = earth.position.z * screenScale // Use Z as Y for 2D screen
+          console.log('📍 Positioned Spline object at Earth:', splineObject.position)
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error positioning Spline objects:', error)
+    }
+  }, [galaxyRadius, rotationSpeed])
+
+  // Function to align Spline objects with galaxy spiral arms and starfield layer
+  const alignSplineObjectsWithGalaxy = useCallback((splineApp: any) => {
+    if (!splineApp) return
+
+    try {
+      // Get canvas dimensions for coordinate conversion
+      const canvas = splineApp.renderer?.domElement || splineApp.canvas
+      const canvasSize = canvas ? {
+        width: canvas.width || canvas.offsetWidth || window.innerWidth,
+        height: canvas.height || canvas.offsetHeight || window.innerHeight
+      } : { width: window.innerWidth, height: window.innerHeight }
+
+      console.log('🌌 Canvas size for alignment:', canvasSize)
+      
+      // Get reference to starfield near layer for synchronized positioning
+      const starfieldNearLayer = (window as any).starfieldNearLayer
+      if (starfieldNearLayer) {
+        console.log('🎯 Found starfield near layer for Spline integration')
+      }
+
+      // Galaxy parameters for positioning
+      const galaxyParams = {
+        particleCount,
+        galaxyRadius,
+        spiralArms,
+        spiralTightness
+      }
+
+      // Spline object names matching solar system planets + fallbacks
+      const objectNames = [
+        'Mercury', 'Venus', 'Earth', 'Mars', 
+        'Jupiter', 'Saturn', 'Uranus', 'Neptune',
+        'Planet_1', 'Planet_2', 'Planet_3', 'Planet_4',
+        'Planet_5', 'Planet_6', 'Planet_7', 'Planet_8',
+        'Sphere', 'Cube', 'Model', 'Object', 'Scene'
+      ]
+
+      const success = SplineHelpers.alignSplineObjectsWithGalaxy(
+        splineApp,
+        galaxyParams,
+        canvasSize,
+        objectNames,
+        true // Use real solar system data with logarithmic compression
+      )
+
+      if (success) {
+        console.log('✅ Successfully aligned Spline objects with galaxy spiral arms')
+        
+        // Add continuous rotation to Spline objects
+        setupSplineRotation(splineApp, objectNames)
+      } else {
+        console.warn('⚠️ Failed to align Spline objects with galaxy')
+      }
+    } catch (error) {
+      console.error('❌ Error aligning Spline objects with galaxy:', error)
+    }
+  }, [particleCount, galaxyRadius, spiralArms, spiralTightness])
+
+  // Function to set up continuous rotation for Spline objects
+  const setupSplineRotation = useCallback((splineApp: any, objectNames: string[]) => {
+    if (!splineApp) return
+
+    // Store original positions and create rotation state
+    const rotationData = objectNames.map(name => {
+      const obj = splineApp.findObjectByName(name)
+      if (obj) {
+        return {
+          object: obj,
+          name: name,
+          originalPosition: { x: obj.position.x, y: obj.position.y, z: obj.position.z },
+          rotationSpeed: 0.5 + Math.random() * 1.0, // Varied rotation speeds
+          orbitalSpeed: 0.1 + Math.random() * 0.3, // Gentle orbital motion
+          phase: Math.random() * Math.PI * 2
+        }
+      }
+      return null
+    }).filter(Boolean)
+
+    // Store rotation data globally for animation loop
+    ;(window as any).splineRotationData = rotationData
+    
+    console.log(`🔄 Set up rotation for ${rotationData.length} Spline objects`)
+  }, [])
+
+  // Animation loop for continuous Spline object rotation and starfield synchronization
+  useEffect(() => {
+    let animationFrame: number
+    let startTime = Date.now()
+    let prevCameraPosition = new THREE.Vector3()
+
+    const animateSplineObjects = () => {
+      const rotationData = (window as any).splineRotationData
+      const starfieldNearLayer = (window as any).starfieldNearLayer
+      
+      if (!rotationData || !isAnimating) {
+        animationFrame = requestAnimationFrame(animateSplineObjects)
+        return
+      }
+
+      const currentTime = Date.now()
+      const elapsed = (currentTime - startTime) / 1000 // Convert to seconds
+
+      // Get current camera position from global state
+      const camera = (window as any).r3fCamera || { position: { x: 0, y: 10, z: 15 } }
+      const currentCameraPosition = new THREE.Vector3(camera.position.x, camera.position.y, camera.position.z)
+      const cameraVelocity = currentCameraPosition.clone().sub(prevCameraPosition).multiplyScalar(60) // Approximate 60fps
+      
+      // Synchronize with starfield near layer parallax (strength: 0.3)
+      const starfieldParallaxOffset = starfieldNearLayer?.position || { x: 0, y: 0, z: 0 }
+      const splineParallaxStrength = 0.3 // Match starfield near layer
+
+      rotationData.forEach((data: any) => {
+        if (data && data.object) {
+          const obj = data.object
+
+          // Individual object rotation
+          if (obj.rotation) {
+            obj.rotation.x += rotationSpeed * data.rotationSpeed * 0.01
+            obj.rotation.y += rotationSpeed * data.rotationSpeed * 0.008
+            obj.rotation.z += rotationSpeed * data.rotationSpeed * 0.005
+          }
+
+          // Gentle orbital motion around original position with starfield sync
+          if (obj.position && data.originalPosition) {
+            const orbitalAngle = elapsed * data.orbitalSpeed + data.phase
+            const orbitalRadius = 50 // Adjust based on your Spline scene scale
+
+            // Base orbital motion
+            const baseX = data.originalPosition.x + Math.cos(orbitalAngle) * orbitalRadius * 0.1
+            const baseY = data.originalPosition.y + Math.sin(orbitalAngle * 0.7) * orbitalRadius * 0.05
+            const baseZ = data.originalPosition.z + Math.sin(orbitalAngle) * orbitalRadius * 0.1
+
+            // Add parallax offset to synchronize with starfield
+            const parallaxScale = 0.1 // Scale camera movement for screen space
+            obj.position.x = baseX + starfieldParallaxOffset.x * parallaxScale
+            obj.position.y = baseY + starfieldParallaxOffset.y * parallaxScale * 0.5
+            obj.position.z = baseZ + starfieldParallaxOffset.z * parallaxScale
+          }
+
+          // Scale pulsing for visual interest
+          if (obj.scale) {
+            const pulseScale = 1 + Math.sin(elapsed * 2 + data.phase) * 0.1
+            obj.scale.x = pulseScale
+            obj.scale.y = pulseScale
+            obj.scale.z = pulseScale
+          }
+        }
+      })
+
+      prevCameraPosition.copy(currentCameraPosition)
+      animationFrame = requestAnimationFrame(animateSplineObjects)
+    }
+
+    animationFrame = requestAnimationFrame(animateSplineObjects)
+
+    return () => {
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame)
+      }
+    }
+  }, [rotationSpeed, isAnimating])
+
+  // Update Spline object positions when scene or galaxy parameters change
+  useEffect(() => {
+    if (splineRef.current) {
+      if (sceneMode === 'solarSystem') {
+        positionSplineObjectsAtPlanets(splineRef.current)
+      } else if (sceneMode === 'galaxy') {
+        alignSplineObjectsWithGalaxy(splineRef.current)
+      }
+    }
+  }, [sceneMode, positionSplineObjectsAtPlanets, alignSplineObjectsWithGalaxy])
+
+  // Real-time synchronization: Update positions when galaxy parameters change
+  useEffect(() => {
+    if (splineRef.current && sceneMode === 'galaxy') {
+      alignSplineObjectsWithGalaxy(splineRef.current)
+    }
+  }, [galaxyRadius, spiralArms, spiralTightness, particleCount, alignSplineObjectsWithGalaxy, sceneMode])
+
+  // Cleanup on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (splineRef.current) {
+        console.log('🧹 Cleaning up Spline resources...')
+        const spline = splineRef.current
+        
+        // Remove WebGL context event listeners with proper handler references
+        if (spline.renderer && spline.renderer.domElement) {
+          const canvas = spline.renderer.domElement
+          canvas.removeEventListener('webglcontextlost', contextLostHandler)
+          canvas.removeEventListener('webglcontextrestored', contextRestoredHandler)
+        }
+        
+        // Dispose renderer resources
+        if (spline.renderer && typeof spline.renderer.dispose === 'function') {
+          spline.renderer.dispose()
+        }
+        
+        splineRef.current = null
+      }
+    }
+  }, [contextLostHandler, contextRestoredHandler])
+
+  if (!splineScene) {
+    console.log('❌ No Spline scene URL provided')
+    return null // Keep simple - no scene means no component
+  }
+
+  return (
+    <Spline
+      scene={splineScene}
+      onLoad={onLoad}
+      onMouseDown={onMouseDown}
+      onMouseMove={onMouseMove}
+      onError={onError}
+      style={{
+        display: 'block',
+        width: '100%',
+        height: '100%',
+        pointerEvents: showSplineModels ? 'auto' : 'none'
+      }}
+    />
+  )
+}

@@ -1,0 +1,168 @@
+/* Galaxy App Global Styles */
+:root {
+  font-family: 'Inter', 'Segoe UI', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  /* Dark space theme */
+  color-scheme: dark;
+  color: rgba(135, 206, 235, 0.9);
+  background-color: #000011;
+
+  /* Typography optimizations */
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000011;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Remove default styles that interfere with fullscreen */
+#root {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  color: #87ceeb;
+  font-weight: 300;
+}
+
+h1 {
+  font-size: 2.5em;
+  line-height: 1.1;
+}
+
+h2 {
+  font-size: 2em;
+  line-height: 1.2;
+}
+
+/* Links */
+a {
+  font-weight: 500;
+  color: #87ceeb;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: #add8e6;
+  text-decoration: underline;
+}
+
+/* Buttons */
+button {
+  border-radius: 6px;
+  border: 1px solid rgba(135, 206, 235, 0.3);
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: rgba(0, 0, 17, 0.8);
+  color: #87ceeb;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+button:hover {
+  border-color: #87ceeb;
+  background-color: rgba(135, 206, 235, 0.1);
+  box-shadow: 0 0 10px rgba(135, 206, 235, 0.2);
+}
+
+button:focus,
+button:focus-visible {
+  outline: 2px solid #87ceeb;
+  outline-offset: 2px;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Form Elements */
+input, select, textarea {
+  background-color: rgba(0, 0, 17, 0.6);
+  border: 1px solid rgba(135, 206, 235, 0.3);
+  border-radius: 4px;
+  color: #87ceeb;
+  padding: 0.5em;
+  font-family: inherit;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #87ceeb;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(135, 206, 235, 0.2);
+}
+
+/* Loading and Error States */
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(135, 206, 235, 0.3);
+  border-top: 3px solid #87ceeb;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  :root {
+    color: #ffffff;
+  }
+  
+  button {
+    border-color: #ffffff;
+    color: #ffffff;
+  }
+  
+  a {
+    color: #ffffff;
+  }
+}
+
+/* Print styles */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}

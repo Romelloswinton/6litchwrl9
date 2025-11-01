@@ -1,0 +1,197 @@
+.spline-sound-controls {
+  background: rgba(0, 0, 17, 0.9);
+  border: 1px solid #87ceeb;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 8px 0;
+  color: #87ceeb;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 12px;
+  max-width: 300px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.control-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(135, 206, 235, 0.3);
+  padding-bottom: 8px;
+}
+
+.control-header h3 {
+  margin: 0;
+  color: #ffd700;
+  font-size: 14px;
+}
+
+.status {
+  font-size: 10px;
+  color: #87ceeb;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+.control-group label {
+  margin-bottom: 4px;
+  font-size: 11px;
+  color: #87ceeb;
+}
+
+.control-group input[type="range"] {
+  margin-bottom: 2px;
+  background: transparent;
+}
+
+.control-group input[type="range"]::-webkit-slider-track {
+  background: rgba(135, 206, 235, 0.3);
+  height: 4px;
+  border-radius: 2px;
+}
+
+.control-group input[type="range"]::-webkit-slider-thumb {
+  background: #ffd700;
+  border: none;
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.control-group span {
+  font-size: 10px;
+  color: rgba(135, 206, 235, 0.7);
+  text-align: right;
+}
+
+.control-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.play-button, .stop-button {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #87ceeb;
+  background: rgba(0, 0, 17, 0.8);
+  color: #87ceeb;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 10px;
+  transition: all 0.2s ease;
+}
+
+.play-button:hover:not(:disabled) {
+  background: rgba(135, 206, 235, 0.2);
+  color: #ffd700;
+}
+
+.stop-button:hover:not(:disabled) {
+  background: rgba(255, 100, 100, 0.2);
+  color: #ff6464;
+}
+
+.play-button:disabled, .stop-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.physics-controls {
+  border-top: 1px solid rgba(135, 206, 235, 0.3);
+  padding-top: 12px;
+  margin-bottom: 12px;
+}
+
+.physics-controls h4 {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  color: #ffd700;
+}
+
+.stats-display {
+  border-top: 1px solid rgba(135, 206, 235, 0.3);
+  padding-top: 12px;
+  margin-bottom: 12px;
+}
+
+.stats-display h4 {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  color: #ffd700;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  font-size: 10px;
+}
+
+.stat-row span:first-child {
+  color: #87ceeb;
+}
+
+.stat-row span:last-child {
+  color: #ffd700;
+  font-weight: bold;
+}
+
+.frequency-breakdown {
+  border-top: 1px solid rgba(135, 206, 235, 0.3);
+  padding-top: 12px;
+}
+
+.frequency-breakdown h4 {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  color: #ffd700;
+}
+
+.frequency-zones {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.freq-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 9px;
+}
+
+.freq-bar span:first-child {
+  min-width: 50px;
+  color: #87ceeb;
+}
+
+.freq-bar span:last-child {
+  min-width: 40px;
+  color: rgba(135, 206, 235, 0.7);
+  text-transform: capitalize;
+}
+
+.bar {
+  height: 3px;
+  background: linear-gradient(to right, #87ceeb, #ffd700);
+  border-radius: 2px;
+  min-width: 2px;
+}
+
+.zone-core .bar { background: #ff4444; }
+.zone-bulge .bar { background: #ffd700; }
+.zone-disk .bar { background: #87ceeb; }
+.zone-halo .bar { background: #aa88ff; }
+
+/* Checkbox styling */
+.control-group input[type="checkbox"] {
+  margin-right: 8px;
+  accent-color: #ffd700;
+}

@@ -1,0 +1,166 @@
+/* XR Mode Switcher Styles */
+
+.xr-mode-switcher {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.xr-buttons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.xr-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  background: rgba(0, 0, 17, 0.8);
+  color: #87ceeb;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.xr-btn:hover:not(:disabled) {
+  background: rgba(135, 206, 235, 0.1);
+  border-color: #87ceeb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(135, 206, 235, 0.3);
+}
+
+.xr-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.xr-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.xr-btn.active {
+  background: rgba(135, 206, 235, 0.2);
+  border-color: #87ceeb;
+  box-shadow: 0 0 20px rgba(135, 206, 235, 0.4);
+}
+
+.xr-icon {
+  font-size: 20px;
+}
+
+.xr-label {
+  letter-spacing: 0.5px;
+}
+
+.vr-btn.active {
+  animation: vr-pulse 2s ease-in-out infinite;
+}
+
+.ar-btn.active {
+  animation: ar-pulse 2s ease-in-out infinite;
+}
+
+@keyframes vr-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(135, 206, 235, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(135, 206, 235, 0.6);
+  }
+}
+
+@keyframes ar-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+  }
+}
+
+.xr-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(0, 0, 17, 0.9);
+  border: 1px solid rgba(135, 206, 235, 0.3);
+  border-radius: 8px;
+  color: #87ceeb;
+  font-size: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.xr-status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #87ceeb;
+}
+
+.xr-status-indicator.active {
+  animation: status-blink 1.5s ease-in-out infinite;
+}
+
+@keyframes status-blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.xr-unsupported {
+  padding: 16px 20px;
+  background: rgba(139, 0, 0, 0.2);
+  border: 2px solid rgba(220, 20, 60, 0.5);
+  border-radius: 12px;
+  color: #ff6b6b;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+.xr-unsupported p {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.xr-unsupported small {
+  display: block;
+  font-size: 11px;
+  opacity: 0.8;
+  max-width: 250px;
+  line-height: 1.4;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .xr-mode-switcher {
+    top: 10px;
+    right: 10px;
+  }
+
+  .xr-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .xr-btn {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .xr-icon {
+    font-size: 18px;
+  }
+}
