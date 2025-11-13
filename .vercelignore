@@ -1,0 +1,38 @@
+# Dependencies
+node_modules
+glitchwrld/node_modules
+
+# Build artifacts
+glitchwrld/dist
+glitchwrld/tsconfig.tsbuildinfo
+
+# Development files
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+coverage
+glitchwrld/coverage
+
+# Editor directories
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Environment files (keep these local)
+.env
+.env.local
+.env.*.local
+
+# Documentation (optional - remove if you want these deployed)
+*.md
+!README.md
+
+# Git
+.git
+.gitignore

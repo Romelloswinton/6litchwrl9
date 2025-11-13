@@ -3,7 +3,7 @@ import "./SplineSoundControls.css"
 import {
   useSplineSound,
   type SplineSoundConfig,
-} from "../../../hooks/useSplineSound"
+} from "../../../hooks/spline/useSplineSound"
 
 export function SplineSoundControls() {
   const [config, setConfig] = useState<SplineSoundConfig>({

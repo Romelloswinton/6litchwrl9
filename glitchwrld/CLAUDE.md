@@ -32,9 +32,10 @@ This is a 3D Galaxy visualization project built with React, TypeScript, and Thre
 
 ### Component Structure
 
-- **GalaxyScene**: Main scene wrapper with Canvas, controls, and post-processing effects
+- **HybridScene**: Main scene wrapper with Canvas, XR support, controls, and post-processing effects
 - **Galaxy**: Core particle system generating spiral galaxy structure with procedural generation
-- **SplineModels**: Integration layer for Spline 3D models within the Three.js scene
+- **SplineR3FModels**: R3F-integrated Spline 3D models with AR/VR support
+- **XRModeSwitcher**: AR/VR mode controls for entering immersive experiences
 - **GalaxyControls**: Leva-based real-time parameter controls
 - **LoadingScreen/ErrorBoundary**: User experience components
 
@@ -47,20 +48,23 @@ This is a 3D Galaxy visualization project built with React, TypeScript, and Thre
 
 ### Spline Integration
 
-- **@splinetool/react-spline**: React component for embedding Spline scenes
-- **@splinetool/runtime**: Spline runtime for model loading and interaction
-- Custom hooks (`useSplineIntegration`) handle model loading, animation, and event management
+- **@splinetool/r3f-spline**: R3F-integrated Spline loader (primary method)
+- **@react-three/xr**: XR support for AR/VR experiences
+- R3F integration allows Spline models to work seamlessly with XR modes
+- Spline objects are positioned using galaxy spiral algorithms and solar system data
+- Deprecated: `@splinetool/react-spline` (overlay-based approach, kept for reference)
 
 ### Custom Hooks
 
 - **useGalaxyAnimation**: Manages rotation, pulsing effects, and time-based animations
 - **useGalaxyInteraction**: Handles mouse/touch interactions, camera movement, and object selection
-- **useSplineIntegration**: Manages Spline model loading, events, and integration with the galaxy scene
+- **useSpline** (from `@splinetool/r3f-spline`): Loads Spline scenes and returns nodes/materials for R3F rendering
 
 ### Utilities
 
 - **GalaxyGenerator**: Procedural generation of spiral galaxy particle systems with configurable parameters
-- **SplineHelpers**: Utilities for Spline model positioning, preloading, and camera presets
+- **SplineHelpers**: Legacy utilities for Spline model positioning and galaxy alignment
+- **SplineR3FHelpers**: R3F-specific utilities for positioning Spline objects in 3D space, XR transformations, and animations
 
 ### Galaxy Generation Algorithm
 
@@ -102,11 +106,19 @@ The galaxy uses a spiral arm algorithm:
 
 ## Development Notes
 
-### Adding New Spline Models
+### Adding New Spline Models (R3F Integration)
 
-1. Update `SplineHelpers.DEFAULT_SPLINE_URLS` with new model URLs
-2. Use `SplineHelpers.createSplineModelConfig()` for proper positioning
-3. Integrate via `useSplineIntegration` hook for events and animations
+1. Export your Spline scene to get the `.splinecode` URL
+2. Set the URL in the hybrid store: `setSplineScene('https://prod.spline.design/YOUR-ID/scene.splinecode')`
+3. The `SplineR3FModels` component will automatically load and integrate the scene
+4. Objects are positioned using `SplineR3FHelpers.positionSplineObjectsInR3F()`
+
+### AR/VR Development
+
+- XR modes are managed through `xrStore` (Zustand)
+- Use `XRModeSwitcher` component for AR/VR entry buttons
+- XR automatically scales content and adjusts performance
+- Test XR features using WebXR emulators or compatible devices
 
 ### Extending Galaxy Features
 

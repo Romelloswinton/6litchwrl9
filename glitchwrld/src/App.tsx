@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { HybridScene } from './components/core/HybridScene'
-import { LoadingScreen } from './components/LoadingScreen'
-import { ErrorBoundary } from './components/ErrorBoundary'
+import { LoadingScreen } from './components/ui/LoadingScreen'
+import { ErrorBoundary } from './components/core/ErrorBoundary'
 import { XRModeSwitcher } from './components/xr/XRModeSwitcher'
 import './App.css'
 

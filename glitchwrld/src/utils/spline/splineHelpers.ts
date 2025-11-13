@@ -1,5 +1,7 @@
 import * as THREE from 'three'
-import type { SplineModelConfig, CameraPreset } from '../../types/galaxy'
+import { compressSolarToGalactic } from '../galaxy/galaxyMath'
+import { getSimplifiedPlanetData } from '../data/planetDatabase'
+import { generateEvenlyDistributedSpiralPositions, generateSpiralPositions } from '../galaxy/spiralPositioning'
 
 export class SplineHelpers {
   // Your actual Spline scene URLs
@@ -7,263 +9,13 @@ export class SplineHelpers {
     main: 'https://prod.spline.design/U7veJdshBfn0p7uX/scene.splinecode',
     // Add more scenes here as needed
     spaceship: 'https://prod.spline.design/U7veJdshBfn0p7uX/scene.splinecode',
-    asteroid: 'https://prod.spline.design/U7veJdshBfn0p7uX/scene.splinecode', 
+    asteroid: 'https://prod.spline.design/U7veJdshBfn0p7uX/scene.splinecode',
     nebula: 'https://prod.spline.design/U7veJdshBfn0p7uX/scene.splinecode',
     planet: 'https://prod.spline.design/U7veJdshBfn0p7uX/scene.splinecode',
   }
 
-  static createSplineModelConfig(
-    name: string,
-    url: string,
-    position: [number, number, number] = [0, 0, 0],
-    rotation: [number, number, number] = [0, 0, 0],
-    scale: [number, number, number] = [1, 1, 1],
-    interactive = true
-  ): SplineModelConfig {
-    return {
-      name,
-      url,
-      position: new THREE.Vector3(...position),
-      rotation: new THREE.Euler(...rotation),
-      scale: new THREE.Vector3(...scale),
-      interactive,
-    }
-  }
-
-  static generateRandomSplinePositions(
-    count: number,
-    radius: number,
-    minDistance = 2
-  ): THREE.Vector3[] {
-    const positions: THREE.Vector3[] = []
-    const maxAttempts = count * 10
-
-    for (let i = 0; i < count && positions.length < maxAttempts; i++) {
-      let attempts = 0
-      let validPosition = false
-      let position: THREE.Vector3
-
-      while (!validPosition && attempts < 100) {
-        // Generate random position within galaxy bounds but outside core
-        const angle = Math.random() * Math.PI * 2
-        const distance = minDistance + Math.random() * (radius - minDistance)
-        const height = (Math.random() - 0.5) * radius * 0.2
-
-        position = new THREE.Vector3(
-          Math.cos(angle) * distance,
-          height,
-          Math.sin(angle) * distance
-        )
-
-        // Check minimum distance from other positions
-        validPosition = positions.every(existingPos => 
-          position!.distanceTo(existingPos) >= minDistance
-        )
-
-        attempts++
-      }
-
-      if (validPosition) {
-        positions.push(position!)
-      }
-    }
-
-    return positions
-  }
-
-  static createCameraPresets(): CameraPreset[] {
-    return [
-      {
-        name: 'Overview',
-        position: new THREE.Vector3(0, 15, 20),
-        target: new THREE.Vector3(0, 0, 0),
-        fov: 75,
-      },
-      {
-        name: 'Core View',
-        position: new THREE.Vector3(0, 5, 8),
-        target: new THREE.Vector3(0, 0, 0),
-        fov: 60,
-      },
-      {
-        name: 'Side Profile',
-        position: new THREE.Vector3(25, 0, 0),
-        target: new THREE.Vector3(0, 0, 0),
-        fov: 45,
-      },
-      {
-        name: 'Spiral Arm',
-        position: new THREE.Vector3(8, 2, 8),
-        target: new THREE.Vector3(0, 0, 0),
-        fov: 90,
-      },
-      {
-        name: 'Deep Space',
-        position: new THREE.Vector3(0, 30, 30),
-        target: new THREE.Vector3(0, 0, 0),
-        fov: 30,
-      },
-    ]
-  }
-
-  static interpolateSplineEvent(
-    eventName: string,
-    startValue: any,
-    endValue: any,
-    progress: number
-  ): any {
-    if (typeof startValue === 'number' && typeof endValue === 'number') {
-      return startValue + (endValue - startValue) * progress
-    }
-    
-    if (startValue instanceof THREE.Vector3 && endValue instanceof THREE.Vector3) {
-      return new THREE.Vector3().lerpVectors(startValue, endValue, progress)
-    }
-    
-    if (startValue instanceof THREE.Color && endValue instanceof THREE.Color) {
-      return new THREE.Color().lerpColors(startValue, endValue, progress)
-    }
-    
-    // Default: return end value when progress >= 0.5
-    return progress >= 0.5 ? endValue : startValue
-  }
-
-  static validateSplineUrl(url: string): boolean {
-    try {
-      const urlObj = new URL(url)
-      return (
-        urlObj.protocol === 'https:' &&
-        (urlObj.hostname === 'prod.spline.design' || 
-         urlObj.hostname === 'app.spline.design' ||
-         urlObj.hostname.endsWith('.spline.design')) &&
-        url.endsWith('.splinecode')
-      )
-    } catch {
-      return false
-    }
-  }
-
-  static async preloadSplineModel(url: string): Promise<boolean> {
-    try {
-      if (!this.validateSplineUrl(url)) {
-        throw new Error('Invalid Spline URL')
-      }
-
-      // In a real implementation, you would preload the Spline model
-      // For now, we'll simulate a network request
-      const response = await fetch(url, { method: 'HEAD' })
-      return response.ok
-    } catch (error) {
-      console.error('Failed to preload Spline model:', error)
-      return false
-    }
-  }
-
-  static createSplineEventHandlers() {
-    return {
-      onLoad: (splineApp: any) => {
-        console.log('Spline scene loaded:', splineApp)
-      },
-      
-      onError: (error: any) => {
-        console.error('Spline scene failed to load:', error)
-      },
-      
-      onMouseEnter: (e: any) => {
-        if (e.target?.name) {
-          document.body.style.cursor = 'pointer'
-        }
-      },
-      
-      onMouseLeave: (e: any) => {
-        document.body.style.cursor = 'default'
-      },
-      
-      onClick: (e: any) => {
-        if (e.target?.name) {
-          console.log('Clicked Spline object:', e.target.name)
-        }
-      },
-      
-      onWheel: (e: any) => {
-        // Handle wheel events if needed
-      },
-    }
-  }
-
-  static getOptimalSplineSettings() {
-    return {
-      antialias: true,
-      alpha: true,
-      powerPreference: 'high-performance',
-      preserveDrawingBuffer: false,
-      failIfMajorPerformanceCaveat: false,
-    }
-  }
-
-  static createSplineAnimationSequence(
-    splineApp: any,
-    animations: Array<{
-      objectName: string
-      property: string
-      from: any
-      to: any
-      duration: number
-      delay?: number
-      easing?: string
-    }>
-  ) {
-    animations.forEach((animation, index) => {
-      const { objectName, property, from, to, duration, delay = 0 } = animation
-      
-      setTimeout(() => {
-        const object = splineApp.findObjectByName(objectName)
-        if (object) {
-          const startTime = Date.now()
-          const startValue = from
-          const endValue = to
-          
-          const animate = () => {
-            const elapsed = Date.now() - startTime
-            const progress = Math.min(elapsed / duration, 1)
-            
-            // Simple easing function
-            const easeProgress = 1 - Math.pow(1 - progress, 3)
-            
-            const currentValue = SplineHelpers.interpolateSplineEvent(
-              property,
-              startValue,
-              endValue,
-              easeProgress
-            )
-            
-            object[property] = currentValue
-            
-            if (progress < 1) {
-              requestAnimationFrame(animate)
-            }
-          }
-          
-          animate()
-        }
-      }, delay)
-    })
-  }
-
-  // Galaxy alignment methods for planets
-  static compressSolarToGalactic(
-    auDistance: number, 
-    solarScale: number,
-    maxGalaxyRadius: number
-  ): number {
-    // Logarithmic compression to fit solar system within galaxy bounds
-    const actualDistance = auDistance * solarScale
-    const maxSolarDistance = 30.1 * solarScale // Neptune's orbit
-    
-    // Logarithmic scaling: outer planets get compressed more than inner ones
-    const compressionFactor = Math.log(actualDistance + 1) / Math.log(maxSolarDistance + 1)
-    return compressionFactor * maxGalaxyRadius * 0.9 // Use 90% of galaxy radius for padding
-  }
+  // Re-export shared utilities for backward compatibility
+  static compressSolarToGalactic = compressSolarToGalactic
 
   static generatePlanetPositionsOnSpiralArms(
     count: number,
@@ -272,34 +24,14 @@ export class SplineHelpers {
     spiralTightness: number,
     minDistance = 2
   ): Array<{ position: THREE.Vector3; armIndex: number; distance: number }> {
-    const planets: Array<{ position: THREE.Vector3; armIndex: number; distance: number }> = []
-    
-    for (let i = 0; i < count; i++) {
-      const armIndex = i % spiralArms
-      const branchAngle = (armIndex / spiralArms) * Math.PI * 2
-      
-      // Distribute planets along the spiral arm at strategic distances
-      const normalizedPosition = i / count
-      const baseRadius = minDistance + (galaxyRadius - minDistance) * Math.pow(normalizedPosition, 0.8)
-      const spinAngle = baseRadius * spiralTightness
-      
-      // Add controlled variation to prevent perfect alignment
-      const angleVariation = (Math.random() - 0.5) * 0.2
-      const radiusVariation = (Math.random() - 0.5) * 0.5
-      
-      const finalRadius = Math.max(minDistance, baseRadius + radiusVariation)
-      const finalAngle = branchAngle + spinAngle + angleVariation
-      
-      const position = new THREE.Vector3(
-        Math.cos(finalAngle) * finalRadius,
-        (Math.random() - 0.5) * 0.3, // Small vertical variation
-        Math.sin(finalAngle) * finalRadius
-      )
-      
-      planets.push({ position, armIndex, distance: finalRadius })
-    }
-    
-    return planets
+    // Use shared spiral positioning utility
+    return generateEvenlyDistributedSpiralPositions(count, {
+      galaxyRadius,
+      spiralArms,
+      spiralTightness,
+      minDistance,
+      verticalVariationAmount: 0.3
+    })
   }
 
   static generateSolarSystemInGalaxy(
@@ -308,57 +40,30 @@ export class SplineHelpers {
     spiralTightness: number,
     solarScale: number
   ): Array<{ name: string; position: THREE.Vector3; armIndex: number; distance: number }> {
-    // Real solar system data (distances in AU)
-    const solarSystemData = [
-      { name: 'Mercury', distance: 0.39 },
-      { name: 'Venus', distance: 0.72 },
-      { name: 'Earth', distance: 1.0 },
-      { name: 'Mars', distance: 1.52 },
-      { name: 'Jupiter', distance: 5.2 },
-      { name: 'Saturn', distance: 9.5 },
-      { name: 'Uranus', distance: 19.2 },
-      { name: 'Neptune', distance: 30.1 }
-    ]
+    // Use unified planet database
+    const solarSystemData = getSimplifiedPlanetData()
 
-    const planets: Array<{ name: string; position: THREE.Vector3; armIndex: number; distance: number }> = []
-    
-    solarSystemData.forEach((planet, index) => {
-      // Compress solar system distances to fit within galaxy
-      const compressedDistance = this.compressSolarToGalactic(
-        planet.distance, 
-        solarScale, 
-        galaxyRadius
-      )
-      
-      // Distribute planets across spiral arms (not all on same arm)
-      const armIndex = index % spiralArms
-      const branchAngle = (armIndex / spiralArms) * Math.PI * 2
-      
-      // Use compressed distance for spiral positioning
-      const spinAngle = compressedDistance * spiralTightness
-      
-      // Add small variation to prevent perfect alignment
-      const angleVariation = (Math.random() - 0.5) * 0.1
-      const radiusVariation = (Math.random() - 0.5) * 0.1
-      
-      const finalRadius = Math.max(0.2, compressedDistance + radiusVariation)
-      const finalAngle = branchAngle + spinAngle + angleVariation
-      
-      const position = new THREE.Vector3(
-        Math.cos(finalAngle) * finalRadius,
-        (Math.random() - 0.5) * 0.1, // Very small vertical variation for galaxy
-        Math.sin(finalAngle) * finalRadius
-      )
-      
-      planets.push({ 
-        name: planet.name,
-        position, 
-        armIndex, 
-        distance: finalRadius 
-      })
+    // Calculate compressed distances for all planets
+    const compressedDistances = solarSystemData.map(p =>
+      compressSolarToGalactic(p.distance, solarScale, galaxyRadius)
+    )
+
+    // Use shared spiral positioning utility
+    const spiralPositions = generateSpiralPositions(compressedDistances, {
+      galaxyRadius,
+      spiralArms,
+      spiralTightness,
+      minDistance: 0.2,
+      verticalVariationAmount: 0.1
     })
-    
-    return planets
+
+    // Combine planet names with positions
+    return solarSystemData.map((planet, index) => ({
+      name: planet.name,
+      position: spiralPositions[index].position,
+      armIndex: spiralPositions[index].armIndex,
+      distance: spiralPositions[index].distance
+    }))
   }
 
   static convertGalaxyToSplineCoordinates(

@@ -1,4 +1,6 @@
 import * as THREE from 'three'
+import { compressSolarToGalactic, PLANET_VISUAL_CONSTANTS } from './galaxyMath'
+import { getAllPlanets } from '../data/planetDatabase'
 
 export interface Planet {
   name: string
@@ -51,178 +53,78 @@ export class SolarSystemGenerator {
     if (!this.config.useGalacticScale || !this.config.galaxyRadius) {
       return auDistance * this.config.scale
     }
-    
-    // Use same compression algorithm as SplineHelpers
-    const actualDistance = auDistance * this.config.scale
-    const maxSolarDistance = 30.1 * this.config.scale // Neptune's orbit
-    
-    // Logarithmic scaling: outer planets get compressed more than inner ones
-    const compressionFactor = Math.log(actualDistance + 1) / Math.log(maxSolarDistance + 1)
-    return compressionFactor * this.config.galaxyRadius * 0.9
+
+    // Use shared compression algorithm
+    return compressSolarToGalactic(auDistance, this.config.scale, this.config.galaxyRadius)
   }
 
   private initializePlanets() {
-    // Accurate solar system data (distances in AU, sizes relative to Earth)
-    this.planets = [
-      {
-        name: 'Mercury',
-        distance: this.compressSolarToGalactic(0.39),
-        radius: 0.38,
-        color: '#8c7853',
-        orbitSpeed: 4.15, // relative to Earth
-        rotationSpeed: 0.017,
+    // Use unified planet database
+    const planetDatabase = getAllPlanets()
+
+    // Moon data (kept here as it's specific to this generator)
+    const moonData: Record<string, Moon[]> = {
+      'Earth': [{
+        name: 'Moon',
+        distance: this.compressSolarToGalactic(0.05),
+        radius: 0.27,
+        color: '#c0c0c0',
+        orbitSpeed: 13.4,
+        angle: 0,
         position: new THREE.Vector3(),
-        angle: Math.random() * Math.PI * 2,
-      },
-      {
-        name: 'Venus',
-        distance: this.compressSolarToGalactic(0.72),
-        radius: 0.95,
-        color: '#ffc649',
-        orbitSpeed: 1.63,
-        rotationSpeed: -0.004, // retrograde rotation
-        position: new THREE.Vector3(),
-        angle: Math.random() * Math.PI * 2,
-      },
-      {
-        name: 'Earth',
-        distance: this.compressSolarToGalactic(1.0),
-        radius: 1.0,
-        color: '#6b93d6',
-        orbitSpeed: 1.0,
-        rotationSpeed: 1.0,
-        position: new THREE.Vector3(),
-        angle: Math.random() * Math.PI * 2,
-        moons: [{
-          name: 'Moon',
-          distance: this.compressSolarToGalactic(0.05),
-          radius: 0.27,
-          color: '#c0c0c0',
-          orbitSpeed: 13.4,
+      }],
+      'Jupiter': [
+        {
+          name: 'Io',
+          distance: this.compressSolarToGalactic(0.08),
+          radius: 0.29,
+          color: '#ffff99',
+          orbitSpeed: 20,
           angle: 0,
           position: new THREE.Vector3(),
-        }]
-      },
-      {
-        name: 'Mars',
-        distance: this.compressSolarToGalactic(1.52),
-        radius: 0.53,
-        color: '#cd5c5c',
-        orbitSpeed: 0.53,
-        rotationSpeed: 0.97,
-        position: new THREE.Vector3(),
-        angle: Math.random() * Math.PI * 2,
-        moons: [
-          {
-            name: 'Phobos',
-            distance: this.compressSolarToGalactic(0.015),
-            radius: 0.01,
-            color: '#8b7765',
-            orbitSpeed: 100,
-            angle: 0,
-            position: new THREE.Vector3(),
-          },
-          {
-            name: 'Deimos',
-            distance: this.compressSolarToGalactic(0.025),
-            radius: 0.006,
-            color: '#8b7765',
-            orbitSpeed: 35,
-            angle: Math.PI,
-            position: new THREE.Vector3(),
-          }
-        ]
-      },
-      {
-        name: 'Jupiter',
-        distance: this.compressSolarToGalactic(5.2),
-        radius: 11.2,
-        color: '#d8ca9d',
-        orbitSpeed: 0.084,
-        rotationSpeed: 2.4,
-        position: new THREE.Vector3(),
-        angle: Math.random() * Math.PI * 2,
-        moons: [
-          {
-            name: 'Io',
-            distance: this.compressSolarToGalactic(0.08),
-            radius: 0.29,
-            color: '#ffff99',
-            orbitSpeed: 20,
-            angle: 0,
-            position: new THREE.Vector3(),
-          },
-          {
-            name: 'Europa',
-            distance: this.compressSolarToGalactic(0.12),
-            radius: 0.25,
-            color: '#87ceeb',
-            orbitSpeed: 15,
-            angle: Math.PI / 2,
-            position: new THREE.Vector3(),
-          },
-          {
-            name: 'Ganymede',
-            distance: this.compressSolarToGalactic(0.18),
-            radius: 0.41,
-            color: '#8b7765',
-            orbitSpeed: 10,
-            angle: Math.PI,
-            position: new THREE.Vector3(),
-          },
-          {
-            name: 'Callisto',
-            distance: this.compressSolarToGalactic(0.25),
-            radius: 0.38,
-            color: '#696969',
-            orbitSpeed: 7,
-            angle: 3 * Math.PI / 2,
-            position: new THREE.Vector3(),
-          }
-        ]
-      },
-      {
-        name: 'Saturn',
-        distance: this.compressSolarToGalactic(9.5),
-        radius: 9.4,
-        color: '#fab97f',
-        orbitSpeed: 0.034,
-        rotationSpeed: 2.2,
-        position: new THREE.Vector3(),
-        angle: Math.random() * Math.PI * 2,
-        moons: [
-          {
-            name: 'Titan',
-            distance: this.compressSolarToGalactic(0.2),
-            radius: 0.4,
-            color: '#ffa500',
-            orbitSpeed: 6,
-            angle: 0,
-            position: new THREE.Vector3(),
-          }
-        ]
-      },
-      {
-        name: 'Uranus',
-        distance: this.compressSolarToGalactic(19.2),
-        radius: 4.0,
-        color: '#4fd0e7',
-        orbitSpeed: 0.012,
-        rotationSpeed: 1.4,
-        position: new THREE.Vector3(),
-        angle: Math.random() * Math.PI * 2,
-      },
-      {
-        name: 'Neptune',
-        distance: this.compressSolarToGalactic(30.1),
-        radius: 3.9,
-        color: '#4169e1',
-        orbitSpeed: 0.006,
-        rotationSpeed: 1.5,
-        position: new THREE.Vector3(),
-        angle: Math.random() * Math.PI * 2,
-      }
-    ]
+        },
+        {
+          name: 'Europa',
+          distance: this.compressSolarToGalactic(0.12),
+          radius: 0.25,
+          color: '#87ceeb',
+          orbitSpeed: 15,
+          angle: Math.PI / 2,
+          position: new THREE.Vector3(),
+        },
+        {
+          name: 'Ganymede',
+          distance: this.compressSolarToGalactic(0.18),
+          radius: 0.41,
+          color: '#8b7765',
+          orbitSpeed: 10,
+          angle: Math.PI,
+          position: new THREE.Vector3(),
+        },
+        {
+          name: 'Callisto',
+          distance: this.compressSolarToGalactic(0.25),
+          radius: 0.38,
+          color: '#696969',
+          orbitSpeed: 7,
+          angle: 3 * Math.PI / 2,
+          position: new THREE.Vector3(),
+        }
+      ]
+    }
+
+    // Convert unified planet data to local Planet interface
+    this.planets = planetDatabase.map(p => ({
+      name: p.name,
+      distance: this.compressSolarToGalactic(p.distanceAU),
+      radius: p.visualSize * 25, // Scale for display (Earth visual size 0.04 * 25 = 1.0)
+      color: p.color.toLowerCase(),
+      orbitSpeed: 1.0 / Math.sqrt(p.distanceAU), // Kepler's third law approximation
+      rotationSpeed: p.rotationPeriod > 0 ? p.rotationPeriod : -Math.abs(p.rotationPeriod),
+      position: new THREE.Vector3(),
+      angle: Math.random() * Math.PI * 2,
+      moons: moonData[p.name] || undefined
+    }))
   }
 
   updatePositions(deltaTime: number) {

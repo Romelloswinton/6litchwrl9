@@ -1,6 +1,6 @@
 import { Suspense, useRef, useEffect, useCallback } from "react"
 import { Canvas } from "@react-three/fiber"
-import { OrbitControls, Environment, Stars, Stats } from "@react-three/drei"
+import { OrbitControls, Stats } from "@react-three/drei"
 import {
   EffectComposer,
   Bloom,
@@ -8,33 +8,47 @@ import {
   Vignette,
 } from "@react-three/postprocessing"
 import { LayerManager, Layer } from "./LayerManager"
-import { BaseGalaxy } from "../galaxy/BaseGalaxy"
-import { SplineLayer } from "../spline/SplineLayer"
-import { GalaxyControls } from "../GalaxyControls"
-import { EnhancedStarfield } from "../EnhancedStarfield"
-import { MultiLayerStarfield } from "../MultiLayerStarfield"
-import { IllusoryPlanets } from "../IllusoryPlanets"
-import { XRGalaxyWrapper } from "../xr/XRGalaxyWrapper"
+import { AccurateSolarSystem } from "../spline/AccurateSolarSystem"
+import { GalaxyControls } from "../ui/GalaxyControls"
+import { KeyboardHelp } from "../ui/KeyboardHelp"
+import { ConstellationInfoPanel } from "../ui/ConstellationInfoPanel"
+import { MultiLayerStarfield } from "../starfield/MultiLayerStarfield"
+import { ConstellationLayer } from "../starfield/ConstellationLayer"
+import { GalaxyNebulaClouds } from "../effects/GalaxyNebulaClouds"
 import { useHybridStore } from "../../stores/hybridStore"
 import { useXRStore } from "../../stores/xrStore"
 import { SplineHelpers } from "../../utils/spline/splineHelpers"
+import { XR } from "@react-three/xr"
+import { xrStore } from "../xr/XRModeSwitcher"
 
-import { usePerformanceMonitor } from '../../hooks/performance/usePerformanceMonitor'
+import { usePerformanceMonitor } from "../../hooks/performance/usePerformanceMonitor"
+import { useKeyboardControls } from "../../hooks/camera/useKeyboardControls"
 
 function PerformanceMonitor() {
   usePerformanceMonitor()
   return null
 }
 
+function KeyboardControls() {
+  useKeyboardControls()
+  return null
+}
+
 function SceneContent() {
-  const { cameraTarget, bloomIntensity, sceneMode } = useHybridStore()
+  const {
+    cameraTarget,
+    bloomIntensity,
+    sceneMode,
+    enableOrbitControls,
+    constellations,
+    nebulaClouds
+  } = useHybridStore()
   const { mode: xrMode, particleMultiplier } = useXRStore()
 
   // Safe fallback for bloomIntensity
   // Reduce bloom in XR modes for performance
-  const safeBloomIntensity = xrMode !== 'desktop'
-    ? (bloomIntensity ?? 1.0) * 0.5
-    : (bloomIntensity ?? 1.0)
+  const safeBloomIntensity =
+    xrMode !== "desktop" ? (bloomIntensity ?? 1.0) * 0.5 : bloomIntensity ?? 1.0
 
   console.log(
     "🎬 HybridScene SceneContent render - sceneMode:",
@@ -51,80 +65,99 @@ function SceneContent() {
     particleMultiplier
   )
 
-  const content = (
-    <>
-      {/* Lighting */}
-      <ambientLight intensity={sceneMode === "solarSystem" ? 0.3 : 0.1} />
+  return (
+    <XR store={xrStore}>
+      {/* Keyboard Controls - Only active in desktop mode */}
+      {xrMode === 'desktop' && <KeyboardControls />}
+
+      {/* Unified Lighting - Optimized for space atmosphere */}
+      <ambientLight intensity={0.15} color="#87ceeb" />
       <pointLight
         position={[0, 0, 0]}
-        intensity={sceneMode === "solarSystem" ? 2.0 : 0.5}
-        color="#ffd700"
+        intensity={2.5}
+        distance={250}
+        decay={1.8}
+        color="#FFF8DC"
+      />
+      <directionalLight
+        intensity={0.4}
+        position={[15, 12, 10]}
+        color="#ffffff"
+      />
+      {/* Subtle rim lighting for depth */}
+      <pointLight
+        position={[-20, 5, -20]}
+        intensity={0.8}
+        distance={150}
+        decay={2}
+        color="#4169e1"
       />
 
-      {/* Enhanced Starfield with Gravitational Physics */}
-      <EnhancedStarfield
-        enableGravitationalWaves={true}
-        enableOrbitalResonance={true}
-        enableDarkMatter={sceneMode === "galaxy"}
-        starCount={sceneMode === "solarSystem" ? 10000 : 50000}
-      />
-
-      {/* Multi-Layer Starfield with depth perception */}
+      {/* Multi-Layer Starfield - Single unified starfield with depth */}
       <MultiLayerStarfield />
 
-      {/* Base Galaxy Layer (always in background) */}
-      <BaseGalaxy />
+      {/* Constellation Layer - Western and Eastern mythology */}
+      {constellations.enabled && (
+        <ConstellationLayer
+          showLines={constellations.showLines}
+          showLabels={constellations.showLabels}
+          scale={constellations.scale}
+          filter={constellations.filter}
+          lineOpacity={constellations.lineOpacity}
+          animate={true}
+        />
+      )}
 
-      {/* Illusory Planets - Rendered in R3F layer for optical illusion */}
-      <IllusoryPlanets
-        planetCount={8}
-        enableGentleRotation={true}
-        enableOpticalIllusion={true}
-        synchronizeWithStarfield={true}
-      />
+      {/* Galaxy Nebula Clouds - Volumetric depth with galaxy colors */}
+      {nebulaClouds.enabled && (
+        <GalaxyNebulaClouds
+          cloudCount={nebulaClouds.cloudCount}
+          opacity={nebulaClouds.opacity}
+          animate={true}
+        />
+      )}
 
-      {/* Camera Controls */}
+      {/* Accurate Solar System - All 8 planets with realistic proportions */}
+      <AccurateSolarSystem timeScale={0.3} showOrbits={false} />
+
+      {/* Camera Controls - disabled in XR mode */}
       <OrbitControls
-        enablePan={true}
-        enableZoom={true}
-        enableRotate={true}
+        enabled={enableOrbitControls && xrMode === 'desktop'}
+        enablePan={enableOrbitControls && xrMode === 'desktop'}
+        enableZoom={enableOrbitControls && xrMode === 'desktop'}
+        enableRotate={enableOrbitControls && xrMode === 'desktop'}
         minDistance={5}
-        maxDistance={50}
+        maxDistance={300}
         target={[cameraTarget.x, cameraTarget.y, cameraTarget.z]}
+        makeDefault
       />
 
-      {/* Environment */}
-      <Environment preset="night" />
+      {/* Environment - Using simple color instead of HDR preset to reduce bundle size */}
+      <color attach="background" args={["#000011"]} />
 
-      {/* Post-processing Effects - Moved outside Suspense */}
+      {/* Post-processing Effects - Optimized for performance and visuals */}
       {safeBloomIntensity > 0 && (
-        <EffectComposer multisampling={0} autoClear={true}>
+        <EffectComposer multisampling={4} autoClear={true}>
           <Bloom
-            intensity={safeBloomIntensity}
-            width={300}
-            height={300}
-            kernelSize={5}
-            luminanceThreshold={0.15}
-            luminanceSmoothing={0.025}
+            intensity={safeBloomIntensity * 1.2}
+            width={400}
+            height={400}
+            kernelSize={3}
+            luminanceThreshold={0.2}
+            luminanceSmoothing={0.3}
+            mipmapBlur
           />
-          <Noise opacity={0.02} />
-          <Vignette eskil={false} offset={0.1} darkness={0.5} />
+          <Noise opacity={0.015} premultiply />
+          <Vignette eskil={false} offset={0.15} darkness={0.6} />
         </EffectComposer>
       )}
-    </>
-  )
-
-  // Wrap with XRGalaxyWrapper if in XR mode
-  return xrMode !== 'desktop' ? (
-    <XRGalaxyWrapper>{content}</XRGalaxyWrapper>
-  ) : (
-    content
+    </XR>
   )
 }
 
 export function HybridScene() {
   const containerRef = useRef<HTMLDivElement>(null)
-  const { cameraPosition, setIsLoading, setSplineScene } = useHybridStore()
+  const { cameraPosition, setIsLoading, setSplineScene, hoveredConstellation } = useHybridStore()
 
   // Initialize Spline scene URL from helpers
   useEffect(() => {
@@ -174,14 +207,14 @@ export function HybridScene() {
       }}
     >
       <LayerManager>
-        {/* BASE LAYER: R3F Galaxy */}
+        {/* BASE LAYER: R3F Galaxy with integrated Spline */}
         <Layer type="base">
           <Canvas
             camera={{
               position: [cameraPosition.x, cameraPosition.y, cameraPosition.z],
-              fov: 75,
-              near: 0.1,
-              far: 1000,
+              fov: 65,
+              near: 0.01,
+              far: 2000,
             }}
             gl={{
               alpha: false,
@@ -225,22 +258,14 @@ export function HybridScene() {
           </Canvas>
         </Layer>
 
-        {/* SPLINE LAYER: Complex Models */}
-        <Layer type="spline">
-          <SplineLayer />
-        </Layer>
+        {/* UI LAYER: Single Unified Control Panel */}
+        <GalaxyControls />
 
-        {/* UI LAYER: Controls */}
-        <div
-          style={{
-            position: "absolute",
-            top: "20px",
-            right: "20px",
-            zIndex: 1000,
-          }}
-        >
-          <GalaxyControls />
-        </div>
+        {/* Keyboard Help Overlay */}
+        <KeyboardHelp />
+
+        {/* Constellation Info Panel */}
+        <ConstellationInfoPanel constellation={hoveredConstellation} />
       </LayerManager>
     </div>
   )

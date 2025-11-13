@@ -38,12 +38,11 @@ export function XRModeSwitcher() {
   // Listen to XR session state
   useEffect(() => {
     const unsubscribe = xrStore.subscribe((state) => {
-      setSessionActive(state !== null)
-      if (state === 'immersive-vr') {
-        setMode('vr')
-      } else if (state === 'immersive-ar') {
-        setMode('ar')
-      } else {
+      setSessionActive(state.session !== null && state.session !== undefined)
+
+      // Track mode based on session existence
+      // XR store doesn't expose session mode directly, so we track it via our own state
+      if (!state.session) {
         setMode('desktop')
       }
     })
@@ -53,29 +52,29 @@ export function XRModeSwitcher() {
 
   const enterVR = () => {
     if (supportsVR) {
+      setMode('vr')
       xrStore.enterVR()
     }
   }
 
   const enterAR = () => {
     if (supportsAR) {
+      setMode('ar')
       xrStore.enterAR()
     }
   }
 
   const exitXR = () => {
-    xrStore.exit()
+    setMode('desktop')
+    const session = xrStore.getState().session
+    if (session) {
+      session.end()
+    }
   }
 
+  // Hide the popup if XR is not supported (instead of showing warning)
   if (!supportsVR && !supportsAR) {
-    return (
-      <div className="xr-mode-switcher">
-        <div className="xr-unsupported">
-          <p>🚫 WebXR not supported on this device</p>
-          <small>Try using a VR headset browser or AR-enabled mobile device</small>
-        </div>
-      </div>
-    )
+    return null
   }
 
   return (

@@ -1,7 +1,18 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(git reset:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(test:*)",
+      "Bash(git rm:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git mv:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []
