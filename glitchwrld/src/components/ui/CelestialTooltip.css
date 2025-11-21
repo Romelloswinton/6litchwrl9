@@ -1,0 +1,234 @@
+/* Celestial Tooltip Styles - Cosmic & Elegant */
+
+.celestial-tooltip {
+  background: rgba(0, 0, 17, 0.95);
+  border: 1px solid rgba(135, 206, 235, 0.3);
+  border-radius: 12px;
+  padding: 0;
+  max-width: 320px;
+  min-width: 280px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(135, 206, 235, 0.2),
+    inset 0 0 30px rgba(135, 206, 235, 0.05);
+  backdrop-filter: blur(10px);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  animation: tooltipFadeIn 0.3s ease-out;
+  pointer-events: none;
+  user-select: none;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Header */
+.tooltip-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 2px solid;
+  background: linear-gradient(135deg, rgba(0, 0, 17, 0.8) 0%, rgba(0, 0, 30, 0.6) 100%);
+  border-radius: 12px 12px 0 0;
+}
+
+.tooltip-symbol {
+  font-size: 32px;
+  line-height: 1;
+  text-shadow: 0 0 10px currentColor;
+  animation: symbolPulse 2s ease-in-out infinite;
+}
+
+@keyframes symbolPulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.1);
+    filter: brightness(1.3);
+  }
+}
+
+.tooltip-title {
+  flex: 1;
+}
+
+.tooltip-name {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(135, 206, 235, 0.5);
+  letter-spacing: 0.5px;
+}
+
+.tooltip-archetype {
+  margin: 4px 0 0 0;
+  font-size: 13px;
+  font-style: italic;
+  font-weight: 500;
+  opacity: 0.9;
+  text-shadow: 0 0 8px currentColor;
+}
+
+/* Body */
+.tooltip-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tooltip-essence {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(135, 206, 235, 0.05);
+  border-radius: 6px;
+  border: 1px solid rgba(135, 206, 235, 0.15);
+}
+
+.essence-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 600;
+}
+
+.essence-value {
+  font-size: 13px;
+  font-weight: 600;
+  text-shadow: 0 0 8px currentColor;
+}
+
+/* Keywords */
+.tooltip-keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.keyword-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid;
+  border-radius: 12px;
+  text-transform: lowercase;
+  letter-spacing: 0.3px;
+  transition: all 0.2s ease;
+}
+
+.keyword-tag:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Description */
+.tooltip-description {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.85);
+  text-align: justify;
+}
+
+/* Mythology Note */
+.tooltip-mythology {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  background: linear-gradient(135deg, rgba(135, 206, 235, 0.08) 0%, rgba(135, 206, 235, 0.03) 100%);
+  border-left: 3px solid rgba(135, 206, 235, 0.4);
+  border-radius: 6px;
+  margin-top: 4px;
+}
+
+.mythology-icon {
+  font-size: 16px;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.mythology-text {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.75);
+  font-style: italic;
+}
+
+/* Compact Tooltip */
+.celestial-tooltip-compact {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0, 0, 17, 0.92);
+  border: 1px solid rgba(135, 206, 235, 0.3);
+  border-radius: 8px;
+  padding: 10px 16px;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.5),
+    0 0 15px rgba(135, 206, 235, 0.15);
+  backdrop-filter: blur(8px);
+  animation: tooltipFadeIn 0.2s ease-out;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.compact-symbol {
+  font-size: 24px;
+  line-height: 1;
+  text-shadow: 0 0 8px currentColor;
+}
+
+.compact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.compact-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(135, 206, 235, 0.4);
+}
+
+.compact-essence {
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.9;
+  text-shadow: 0 0 6px currentColor;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .celestial-tooltip {
+    max-width: 260px;
+    min-width: 240px;
+  }
+
+  .tooltip-name {
+    font-size: 16px;
+  }
+
+  .tooltip-description {
+    font-size: 12px;
+  }
+}

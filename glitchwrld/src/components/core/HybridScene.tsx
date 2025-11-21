@@ -17,7 +17,6 @@ import { ConstellationLayer } from "../starfield/ConstellationLayer"
 import { GalaxyNebulaClouds } from "../effects/GalaxyNebulaClouds"
 import { useHybridStore } from "../../stores/hybridStore"
 import { useXRStore } from "../../stores/xrStore"
-import { SplineHelpers } from "../../utils/spline/splineHelpers"
 import { XR } from "@react-three/xr"
 import { xrStore } from "../xr/XRModeSwitcher"
 
@@ -49,21 +48,6 @@ function SceneContent() {
   // Reduce bloom in XR modes for performance
   const safeBloomIntensity =
     xrMode !== "desktop" ? (bloomIntensity ?? 1.0) * 0.5 : bloomIntensity ?? 1.0
-
-  console.log(
-    "🎬 HybridScene SceneContent render - sceneMode:",
-    sceneMode,
-    "xrMode:",
-    xrMode,
-    "bloomIntensity:",
-    bloomIntensity,
-    "type:",
-    typeof bloomIntensity,
-    "safe:",
-    safeBloomIntensity,
-    "particleMultiplier:",
-    particleMultiplier
-  )
 
   return (
     <XR store={xrStore}>
@@ -157,14 +141,7 @@ function SceneContent() {
 
 export function HybridScene() {
   const containerRef = useRef<HTMLDivElement>(null)
-  const { cameraPosition, setIsLoading, setSplineScene, hoveredConstellation } = useHybridStore()
-
-  // Initialize Spline scene URL from helpers
-  useEffect(() => {
-    if (SplineHelpers.DEFAULT_SPLINE_URLS.main) {
-      setSplineScene(SplineHelpers.DEFAULT_SPLINE_URLS.main)
-    }
-  }, [setSplineScene])
+  const { setIsLoading, hoveredConstellation } = useHybridStore()
 
   // WebGL context handlers
   const r3fContextLostHandler = useCallback((event: Event) => {
@@ -175,23 +152,6 @@ export function HybridScene() {
   const r3fContextRestoredHandler = useCallback((gl: any) => {
     console.log("✅ R3F WebGL context restored!")
     gl.setClearColor(0x000011, 1)
-  }, [])
-
-  // Container validation
-  useEffect(() => {
-    if (containerRef.current) {
-      const { offsetWidth, offsetHeight } = containerRef.current
-      console.log(
-        "🖼️ HybridScene container dimensions:",
-        offsetWidth,
-        offsetHeight
-      )
-
-      if (offsetWidth === 0 || offsetHeight === 0) {
-        console.warn("⚠️ Container has zero dimensions!")
-        return
-      }
-    }
   }, [])
 
   return (
@@ -211,7 +171,7 @@ export function HybridScene() {
         <Layer type="base">
           <Canvas
             camera={{
-              position: [cameraPosition.x, cameraPosition.y, cameraPosition.z],
+              position: [0, 30, 70],
               fov: 65,
               near: 0.01,
               far: 2000,

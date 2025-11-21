@@ -5,10 +5,14 @@
 */
 
 import { useRef, useState, useMemo } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { useFrame, ThreeEvent } from '@react-three/fiber'
 import * as THREE from 'three'
 import { PLANET_DATA, MOON_DATA, type MoonData } from '../../utils/orbital/PlanetData'
 import { useHybridStore } from '../../stores/hybridStore'
+import { useCameraAnimation } from '../../hooks/camera/useCameraAnimation'
+import { EmotionalVenus } from '../planets/EmotionalVenus'
+import { CelestialTooltip, CompactCelestialTooltip } from '../ui/CelestialTooltip'
+import { getCelestialSymbolism } from '../../utils/data/celestialSymbolism'
 
 interface SolarSystemProps {
   timeScale?: number
@@ -90,16 +94,21 @@ function Moon({
   moonData,
   parentRef,
   time,
-  timeScale
+  timeScale,
+  hoveredBody,
+  setHoveredBody
 }: {
   moonData: MoonData
-  parentRef: React.RefObject<THREE.Group | null>
+  parentRef: React.RefObject<THREE.Group> | React.RefObject<THREE.Group | null>
   time: number
   timeScale: number
+  hoveredBody: string | null
+  setHoveredBody: (body: string | null) => void
 }) {
   const moonRef = useRef<THREE.Group>(null)
   // Moons are scaled up to be clearly visible (3x the calculated size for better visibility)
   const size = calculateVisualSize(moonData.radius) * 3.0
+  const moonName = moonData.name.toLowerCase()
 
   useFrame(() => {
     if (!moonRef.current || !parentRef.current) return
@@ -127,7 +136,18 @@ function Moon({
 
   return (
     <group ref={moonRef}>
-      <mesh>
+      <mesh
+        onPointerOver={(e) => {
+          e.stopPropagation()
+          setHoveredBody(moonName)
+          document.body.style.cursor = 'pointer'
+        }}
+        onPointerOut={(e) => {
+          e.stopPropagation()
+          setHoveredBody(null)
+          document.body.style.cursor = 'default'
+        }}
+      >
         <sphereGeometry args={[size, 16, 16]} />
         <meshStandardMaterial
           color={moonData.color}
@@ -135,6 +155,16 @@ function Moon({
           emissiveIntensity={0.15} // Increased glow for better visibility
         />
       </mesh>
+      {hoveredBody === moonName && getCelestialSymbolism(moonName) && (
+        <CompactCelestialTooltip
+          name={getCelestialSymbolism(moonName)!.name}
+          symbol={getCelestialSymbolism(moonName)!.symbol}
+          essence={getCelestialSymbolism(moonName)!.essence}
+          color={getCelestialSymbolism(moonName)!.color}
+          position={[0, size + 0.5, 0]}
+          visible={true}
+        />
+      )}
     </group>
   )
 }
@@ -192,7 +222,10 @@ function SubtleBackgroundStars() {
 
 export function AccurateSolarSystem({ timeScale = 0.2, showOrbits = false }: SolarSystemProps) {
   const [time, setTime] = useState(0)
+  const [focusedPlanet, setFocusedPlanet] = useState<string | null>(null)
+  const [hoveredBody, setHoveredBody] = useState<string | null>(null)
   const { planets } = useHybridStore()
+  const { animateToPosition } = useCameraAnimation()
 
   // Planet refs
   const mercuryRef = useRef<THREE.Group>(null)
@@ -204,6 +237,77 @@ export function AccurateSolarSystem({ timeScale = 0.2, showOrbits = false }: Sol
   const uranusRef = useRef<THREE.Group>(null)
   const neptuneRef = useRef<THREE.Group>(null)
   const sunRef = useRef<THREE.Mesh>(null)
+
+  // Generic planet click handler
+  const handlePlanetClick = (
+    planetName: string,
+    planetRef: React.RefObject<THREE.Group | null>,
+    cameraOffset: THREE.Vector3,
+    emoji: string
+  ) => {
+    return (event: ThreeEvent<MouseEvent>) => {
+      event.stopPropagation()
+
+      if (!planetRef.current) return
+
+      if (focusedPlanet === planetName) {
+        // Already focused, zoom back out
+        const overviewPosition = new THREE.Vector3(0, 30, 70)
+        const overviewTarget = new THREE.Vector3(0, 0, 0)
+
+        animateToPosition(overviewPosition, overviewTarget, {
+          duration: 2500,
+          easing: 'easeInOut',
+          onComplete: () => {
+            setFocusedPlanet(null)
+            console.log(`${emoji} Zoomed back to overview`)
+          }
+        })
+      } else {
+        // Zoom into planet
+        const planetPosition = planetRef.current.position.clone()
+        const cameraPosition = planetPosition.clone().add(cameraOffset)
+
+        animateToPosition(cameraPosition, planetPosition, {
+          duration: 2500,
+          easing: 'easeInOut',
+          onComplete: () => {
+            setFocusedPlanet(planetName)
+            console.log(`${emoji} Focused on ${planetName}!`)
+          }
+        })
+      }
+    }
+  }
+
+  // Planet-specific click handlers with custom camera offsets
+  const handleMercuryClick = handlePlanetClick(
+    'mercury',
+    mercuryRef,
+    new THREE.Vector3(1.2, 0.8, 1.5), // Closer view for smaller planet
+    '☿️'
+  )
+
+  const handleVenusClick = handlePlanetClick(
+    'venus',
+    venusRef,
+    new THREE.Vector3(1.8, 1.2, 2.0), // Medium distance
+    '♀️'
+  )
+
+  const handleEarthClick = handlePlanetClick(
+    'earth',
+    earthRef,
+    new THREE.Vector3(2, 1.5, 2.5), // Good balance for Earth + Moon
+    '🌍'
+  )
+
+  const handleMarsClick = handlePlanetClick(
+    'mars',
+    marsRef,
+    new THREE.Vector3(1.5, 1, 2), // Show Mars + its moons
+    '🔴'
+  )
 
   // Calculate planet sizes (all properly scaled now)
   const sizes = {
@@ -346,64 +450,163 @@ export function AccurateSolarSystem({ timeScale = 0.2, showOrbits = false }: Sol
       <SubtleBackgroundStars />
 
       {/* Sun */}
-      <mesh ref={sunRef} position={[0, 0, 0]}>
-        <sphereGeometry args={[sizes.sun, 64, 64]} />
-        <meshStandardMaterial
-          color="#FDB813"
-          emissive="#FF8C00"
-          emissiveIntensity={2.5}
-        />
-      </mesh>
+      <group>
+        <mesh
+          ref={sunRef}
+          position={[0, 0, 0]}
+          onPointerOver={(e) => {
+            e.stopPropagation()
+            setHoveredBody('sun')
+            document.body.style.cursor = 'pointer'
+          }}
+          onPointerOut={(e) => {
+            e.stopPropagation()
+            setHoveredBody(null)
+            document.body.style.cursor = 'default'
+          }}
+        >
+          <sphereGeometry args={[sizes.sun, 64, 64]} />
+          <meshStandardMaterial
+            color="#FDB813"
+            emissive="#FF8C00"
+            emissiveIntensity={2.5}
+          />
+        </mesh>
+        {hoveredBody === 'sun' && getCelestialSymbolism('sun') && (
+          <CelestialTooltip
+            symbolism={getCelestialSymbolism('sun')!}
+            position={[0, sizes.sun + 2, 0]}
+            visible={true}
+          />
+        )}
+      </group>
 
       {/* Inner Planets */}
       {planets.showInnerPlanets && (
         <>
           {/* Mercury (no moons) */}
           <group ref={mercuryRef}>
-            <mesh>
+            <mesh
+              onClick={handleMercuryClick}
+              onPointerOver={(e) => {
+                e.stopPropagation()
+                setHoveredBody('mercury')
+                document.body.style.cursor = 'pointer'
+              }}
+              onPointerOut={(e) => {
+                e.stopPropagation()
+                setHoveredBody(null)
+                document.body.style.cursor = 'default'
+              }}
+            >
               <sphereGeometry args={[sizes.mercury, 32, 32]} />
-              <meshStandardMaterial color={PLANET_DATA.mercury.color} />
-            </mesh>
-          </group>
-
-          {/* Venus (no moons) */}
-          <group ref={venusRef}>
-            <mesh>
-              <sphereGeometry args={[sizes.venus, 32, 32]} />
               <meshStandardMaterial
-                color={PLANET_DATA.venus.color}
-                emissive={PLANET_DATA.venus.color}
-                emissiveIntensity={0.1}
+                color={PLANET_DATA.mercury.color}
+                emissive={PLANET_DATA.mercury.color}
+                emissiveIntensity={focusedPlanet === 'mercury' ? 0.4 : 0.1}
               />
             </mesh>
+            {hoveredBody === 'mercury' && getCelestialSymbolism('mercury') && (
+              <CelestialTooltip
+                symbolism={getCelestialSymbolism('mercury')!}
+                position={[0, sizes.mercury + 1, 0]}
+                visible={true}
+              />
+            )}
+          </group>
+
+          {/* Venus (no moons) - Emotional "Burning Love" Design */}
+          <group ref={venusRef}>
+            <EmotionalVenus
+              position={[0, 0, 0]}
+              size={sizes.venus}
+              onClick={() => handleVenusClick({} as any)}
+              onPointerOver={(e) => {
+                e.stopPropagation()
+                setHoveredBody('venus')
+                document.body.style.cursor = 'pointer'
+              }}
+              onPointerOut={(e) => {
+                e.stopPropagation()
+                setHoveredBody(null)
+                document.body.style.cursor = 'default'
+              }}
+              isFocused={focusedPlanet === 'venus'}
+              time={time}
+            />
+            {hoveredBody === 'venus' && getCelestialSymbolism('venus') && (
+              <CelestialTooltip
+                symbolism={getCelestialSymbolism('venus')!}
+                position={[0, sizes.venus + 1.5, 0]}
+                visible={true}
+              />
+            )}
           </group>
 
           {/* Earth + Moon */}
           <group ref={earthRef}>
-            <mesh>
+            <mesh
+              onClick={handleEarthClick}
+              onPointerOver={(e) => {
+                e.stopPropagation()
+                setHoveredBody('earth')
+                document.body.style.cursor = 'pointer'
+              }}
+              onPointerOut={(e) => {
+                e.stopPropagation()
+                setHoveredBody(null)
+                document.body.style.cursor = 'default'
+              }}
+            >
               <sphereGeometry args={[sizes.earth, 32, 32]} />
               <meshStandardMaterial
                 color={PLANET_DATA.earth.color}
                 emissive={PLANET_DATA.earth.color}
-                emissiveIntensity={0.15}
+                emissiveIntensity={focusedPlanet === 'earth' ? 0.4 : 0.15}
               />
             </mesh>
+            {hoveredBody === 'earth' && getCelestialSymbolism('earth') && (
+              <CelestialTooltip
+                symbolism={getCelestialSymbolism('earth')!}
+                position={[0, sizes.earth + 1, 0]}
+                visible={true}
+              />
+            )}
           </group>
-          <Moon moonData={MOON_DATA.moon} parentRef={earthRef} time={time} timeScale={timeScale} />
+          <Moon moonData={MOON_DATA.moon} parentRef={earthRef} time={time} timeScale={timeScale} hoveredBody={hoveredBody} setHoveredBody={setHoveredBody} />
 
           {/* Mars + Phobos + Deimos */}
           <group ref={marsRef}>
-            <mesh>
+            <mesh
+              onClick={handleMarsClick}
+              onPointerOver={(e) => {
+                e.stopPropagation()
+                setHoveredBody('mars')
+                document.body.style.cursor = 'pointer'
+              }}
+              onPointerOut={(e) => {
+                e.stopPropagation()
+                setHoveredBody(null)
+                document.body.style.cursor = 'default'
+              }}
+            >
               <sphereGeometry args={[sizes.mars, 32, 32]} />
               <meshStandardMaterial
                 color={PLANET_DATA.mars.color}
                 emissive={PLANET_DATA.mars.color}
-                emissiveIntensity={0.1}
+                emissiveIntensity={focusedPlanet === 'mars' ? 0.5 : 0.1}
               />
             </mesh>
+            {hoveredBody === 'mars' && getCelestialSymbolism('mars') && (
+              <CelestialTooltip
+                symbolism={getCelestialSymbolism('mars')!}
+                position={[0, sizes.mars + 1, 0]}
+                visible={true}
+              />
+            )}
           </group>
-          <Moon moonData={MOON_DATA.phobos} parentRef={marsRef} time={time} timeScale={timeScale} />
-          <Moon moonData={MOON_DATA.deimos} parentRef={marsRef} time={time} timeScale={timeScale} />
+          <Moon moonData={MOON_DATA.phobos} parentRef={marsRef} time={time} timeScale={timeScale} hoveredBody={hoveredBody} setHoveredBody={setHoveredBody} />
+          <Moon moonData={MOON_DATA.deimos} parentRef={marsRef} time={time} timeScale={timeScale} hoveredBody={hoveredBody} setHoveredBody={setHoveredBody} />
         </>
       )}
 
@@ -412,7 +615,18 @@ export function AccurateSolarSystem({ timeScale = 0.2, showOrbits = false }: Sol
         <>
           {/* Jupiter + Galilean Moons (Io, Europa, Ganymede, Callisto) */}
           <group ref={jupiterRef}>
-            <mesh>
+            <mesh
+              onPointerOver={(e) => {
+                e.stopPropagation()
+                setHoveredBody('jupiter')
+                document.body.style.cursor = 'pointer'
+              }}
+              onPointerOut={(e) => {
+                e.stopPropagation()
+                setHoveredBody(null)
+                document.body.style.cursor = 'default'
+              }}
+            >
               <sphereGeometry args={[sizes.jupiter, 32, 32]} />
               <meshStandardMaterial
                 color={PLANET_DATA.jupiter.color}
@@ -420,15 +634,33 @@ export function AccurateSolarSystem({ timeScale = 0.2, showOrbits = false }: Sol
                 emissiveIntensity={0.08}
               />
             </mesh>
+            {hoveredBody === 'jupiter' && getCelestialSymbolism('jupiter') && (
+              <CelestialTooltip
+                symbolism={getCelestialSymbolism('jupiter')!}
+                position={[0, sizes.jupiter + 2, 0]}
+                visible={true}
+              />
+            )}
           </group>
-          <Moon moonData={MOON_DATA.io} parentRef={jupiterRef} time={time} timeScale={timeScale} />
-          <Moon moonData={MOON_DATA.europa} parentRef={jupiterRef} time={time} timeScale={timeScale} />
-          <Moon moonData={MOON_DATA.ganymede} parentRef={jupiterRef} time={time} timeScale={timeScale} />
-          <Moon moonData={MOON_DATA.callisto} parentRef={jupiterRef} time={time} timeScale={timeScale} />
+          <Moon moonData={MOON_DATA.io} parentRef={jupiterRef} time={time} timeScale={timeScale} hoveredBody={hoveredBody} setHoveredBody={setHoveredBody} />
+          <Moon moonData={MOON_DATA.europa} parentRef={jupiterRef} time={time} timeScale={timeScale} hoveredBody={hoveredBody} setHoveredBody={setHoveredBody} />
+          <Moon moonData={MOON_DATA.ganymede} parentRef={jupiterRef} time={time} timeScale={timeScale} hoveredBody={hoveredBody} setHoveredBody={setHoveredBody} />
+          <Moon moonData={MOON_DATA.callisto} parentRef={jupiterRef} time={time} timeScale={timeScale} hoveredBody={hoveredBody} setHoveredBody={setHoveredBody} />
 
           {/* Saturn + Titan + Rhea */}
           <group ref={saturnRef}>
-            <mesh>
+            <mesh
+              onPointerOver={(e) => {
+                e.stopPropagation()
+                setHoveredBody('saturn')
+                document.body.style.cursor = 'pointer'
+              }}
+              onPointerOut={(e) => {
+                e.stopPropagation()
+                setHoveredBody(null)
+                document.body.style.cursor = 'default'
+              }}
+            >
               <sphereGeometry args={[sizes.saturn, 32, 32]} />
               <meshStandardMaterial
                 color={PLANET_DATA.saturn.color}
@@ -446,13 +678,31 @@ export function AccurateSolarSystem({ timeScale = 0.2, showOrbits = false }: Sol
                 transparent
               />
             </mesh>
+            {hoveredBody === 'saturn' && getCelestialSymbolism('saturn') && (
+              <CelestialTooltip
+                symbolism={getCelestialSymbolism('saturn')!}
+                position={[0, sizes.saturn + 2.5, 0]}
+                visible={true}
+              />
+            )}
           </group>
-          <Moon moonData={MOON_DATA.titan} parentRef={saturnRef} time={time} timeScale={timeScale} />
-          <Moon moonData={MOON_DATA.rhea} parentRef={saturnRef} time={time} timeScale={timeScale} />
+          <Moon moonData={MOON_DATA.titan} parentRef={saturnRef} time={time} timeScale={timeScale} hoveredBody={hoveredBody} setHoveredBody={setHoveredBody} />
+          <Moon moonData={MOON_DATA.rhea} parentRef={saturnRef} time={time} timeScale={timeScale} hoveredBody={hoveredBody} setHoveredBody={setHoveredBody} />
 
           {/* Uranus + Titania + Oberon */}
           <group ref={uranusRef}>
-            <mesh>
+            <mesh
+              onPointerOver={(e) => {
+                e.stopPropagation()
+                setHoveredBody('uranus')
+                document.body.style.cursor = 'pointer'
+              }}
+              onPointerOut={(e) => {
+                e.stopPropagation()
+                setHoveredBody(null)
+                document.body.style.cursor = 'default'
+              }}
+            >
               <sphereGeometry args={[sizes.uranus, 32, 32]} />
               <meshStandardMaterial
                 color={PLANET_DATA.uranus.color}
@@ -460,13 +710,31 @@ export function AccurateSolarSystem({ timeScale = 0.2, showOrbits = false }: Sol
                 emissiveIntensity={0.1}
               />
             </mesh>
+            {hoveredBody === 'uranus' && getCelestialSymbolism('uranus') && (
+              <CelestialTooltip
+                symbolism={getCelestialSymbolism('uranus')!}
+                position={[0, sizes.uranus + 1.5, 0]}
+                visible={true}
+              />
+            )}
           </group>
-          <Moon moonData={MOON_DATA.titania} parentRef={uranusRef} time={time} timeScale={timeScale} />
-          <Moon moonData={MOON_DATA.oberon} parentRef={uranusRef} time={time} timeScale={timeScale} />
+          <Moon moonData={MOON_DATA.titania} parentRef={uranusRef} time={time} timeScale={timeScale} hoveredBody={hoveredBody} setHoveredBody={setHoveredBody} />
+          <Moon moonData={MOON_DATA.oberon} parentRef={uranusRef} time={time} timeScale={timeScale} hoveredBody={hoveredBody} setHoveredBody={setHoveredBody} />
 
           {/* Neptune + Triton */}
           <group ref={neptuneRef}>
-            <mesh>
+            <mesh
+              onPointerOver={(e) => {
+                e.stopPropagation()
+                setHoveredBody('neptune')
+                document.body.style.cursor = 'pointer'
+              }}
+              onPointerOut={(e) => {
+                e.stopPropagation()
+                setHoveredBody(null)
+                document.body.style.cursor = 'default'
+              }}
+            >
               <sphereGeometry args={[sizes.neptune, 32, 32]} />
               <meshStandardMaterial
                 color={PLANET_DATA.neptune.color}
@@ -474,8 +742,15 @@ export function AccurateSolarSystem({ timeScale = 0.2, showOrbits = false }: Sol
                 emissiveIntensity={0.12}
               />
             </mesh>
+            {hoveredBody === 'neptune' && getCelestialSymbolism('neptune') && (
+              <CelestialTooltip
+                symbolism={getCelestialSymbolism('neptune')!}
+                position={[0, sizes.neptune + 1.5, 0]}
+                visible={true}
+              />
+            )}
           </group>
-          <Moon moonData={MOON_DATA.triton} parentRef={neptuneRef} time={time} timeScale={timeScale} />
+          <Moon moonData={MOON_DATA.triton} parentRef={neptuneRef} time={time} timeScale={timeScale} hoveredBody={hoveredBody} setHoveredBody={setHoveredBody} />
         </>
       )}
     </group>

@@ -296,9 +296,21 @@ export const useHybridStore = create<HybridState>()(
       })),
 
     setCameraPosition: (position: THREE.Vector3) =>
-      set({ cameraPosition: position.clone() }),
+      set((state) => {
+        // Only update if position actually changed to prevent unnecessary re-renders
+        if (state.cameraPosition.equals(position)) {
+          return state
+        }
+        return { cameraPosition: position.clone() }
+      }),
     setCameraTarget: (target: THREE.Vector3) =>
-      set({ cameraTarget: target.clone() }),
+      set((state) => {
+        // Only update if target actually changed to prevent unnecessary re-renders
+        if (state.cameraTarget.equals(target)) {
+          return state
+        }
+        return { cameraTarget: target.clone() }
+      }),
     setEnableOrbitControls: (enable: boolean) =>
       set({ enableOrbitControls: enable }),
 
