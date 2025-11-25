@@ -4,7 +4,7 @@
   + Major moons + Subtle background stars
 */
 
-import { useRef, useState, useMemo } from 'react'
+import { useRef, useState, useMemo, useEffect } from 'react'
 import { useFrame, ThreeEvent } from '@react-three/fiber'
 import * as THREE from 'three'
 import { PLANET_DATA, MOON_DATA, type MoonData } from '../../utils/orbital/PlanetData'
@@ -13,6 +13,11 @@ import { useCameraAnimation } from '../../hooks/camera/useCameraAnimation'
 import { EmotionalVenus } from '../planets/EmotionalVenus'
 import { CelestialTooltip, CompactCelestialTooltip } from '../ui/CelestialTooltip'
 import { getCelestialSymbolism } from '../../utils/data/celestialSymbolism'
+import {
+  calculateAllPlanetPositions,
+  getOrbitalAngleFromPosition,
+  getPlanetaryPositionSummary
+} from '../../utils/orbital/astronomicalCalculations'
 
 interface SolarSystemProps {
   timeScale?: number
@@ -227,6 +232,27 @@ export function AccurateSolarSystem({ timeScale = 0.2, showOrbits = false }: Sol
   const { planets } = useHybridStore()
   const { animateToPosition } = useCameraAnimation()
 
+  // Calculate real-time initial positions based on current date
+  const initialPositions = useMemo(() => {
+    const currentDate = new Date()
+    const positions = calculateAllPlanetPositions(currentDate)
+
+    console.log('🌍 Real-time planetary alignment initialized!')
+    console.log(getPlanetaryPositionSummary(currentDate))
+
+    // Convert positions to initial angles for each planet
+    return {
+      mercury: getOrbitalAngleFromPosition(positions.mercury),
+      venus: getOrbitalAngleFromPosition(positions.venus),
+      earth: getOrbitalAngleFromPosition(positions.earth),
+      mars: getOrbitalAngleFromPosition(positions.mars),
+      jupiter: getOrbitalAngleFromPosition(positions.jupiter),
+      saturn: getOrbitalAngleFromPosition(positions.saturn),
+      uranus: getOrbitalAngleFromPosition(positions.uranus),
+      neptune: getOrbitalAngleFromPosition(positions.neptune),
+    }
+  }, []) // Only calculate once on mount
+
   // Planet refs
   const mercuryRef = useRef<THREE.Group>(null)
   const venusRef = useRef<THREE.Group>(null)
@@ -295,19 +321,21 @@ export function AccurateSolarSystem({ timeScale = 0.2, showOrbits = false }: Sol
     '♀️'
   )
 
-  const handleEarthClick = handlePlanetClick(
-    'earth',
-    earthRef,
-    new THREE.Vector3(2, 1.5, 2.5), // Good balance for Earth + Moon
-    '🌍'
-  )
+  // Special handler for Earth - switches to Spline scene
+  const handleEarthClick = (event: ThreeEvent<MouseEvent>) => {
+    event.stopPropagation()
+    const { setSceneMode } = useHybridStore.getState()
+    setSceneMode('earthSpline')
+    console.log('🌍 Switching to Earth Spline scene')
+  }
 
-  const handleMarsClick = handlePlanetClick(
-    'mars',
-    marsRef,
-    new THREE.Vector3(1.5, 1, 2), // Show Mars + its moons
-    '🔴'
-  )
+  // Special handler for Mars - switches to Mars Experience scene
+  const handleMarsClick = (event: ThreeEvent<MouseEvent>) => {
+    event.stopPropagation()
+    const { setSceneMode } = useHybridStore.getState()
+    setSceneMode('marsExperience')
+    console.log('🔴 Switching to Mars Experience scene')
+  }
 
   // Calculate planet sizes (all properly scaled now)
   const sizes = {
@@ -341,11 +369,12 @@ export function AccurateSolarSystem({ timeScale = 0.2, showOrbits = false }: Sol
     // Simplified circular orbits at fixed desktop-optimized distances
     // Each planet orbits at its calculated display distance
     // All orbits are in the ecliptic plane (XZ plane, Y=0) perpendicular to the sun's vertical axis
+    // IMPORTANT: Now starting from real astronomical positions!
 
     // Mercury - Fast orbit (88 days)
     if (mercuryRef.current) {
       const mercurySpeed = (2 * Math.PI) / (PLANET_DATA.mercury.orbitalPeriod * timeScale)
-      const mercuryAngle = time * mercurySpeed
+      const mercuryAngle = initialPositions.mercury + (time * mercurySpeed)
       mercuryRef.current.position.set(
         Math.cos(mercuryAngle) * PLANET_DISTANCES.mercury,
         0, // Ecliptic plane (perpendicular to sun's vertical axis)
@@ -357,7 +386,7 @@ export function AccurateSolarSystem({ timeScale = 0.2, showOrbits = false }: Sol
     // Venus - Retrograde rotation (225 days)
     if (venusRef.current) {
       const venusSpeed = (2 * Math.PI) / (PLANET_DATA.venus.orbitalPeriod * timeScale)
-      const venusAngle = time * venusSpeed
+      const venusAngle = initialPositions.venus + (time * venusSpeed)
       venusRef.current.position.set(
         Math.cos(venusAngle) * PLANET_DISTANCES.venus,
         0,
@@ -369,7 +398,7 @@ export function AccurateSolarSystem({ timeScale = 0.2, showOrbits = false }: Sol
     // Earth - 1 year orbit (365 days)
     if (earthRef.current) {
       const earthSpeed = (2 * Math.PI) / (PLANET_DATA.earth.orbitalPeriod * timeScale)
-      const earthAngle = time * earthSpeed
+      const earthAngle = initialPositions.earth + (time * earthSpeed)
       earthRef.current.position.set(
         Math.cos(earthAngle) * PLANET_DISTANCES.earth,
         0,
@@ -381,7 +410,7 @@ export function AccurateSolarSystem({ timeScale = 0.2, showOrbits = false }: Sol
     // Mars - 687 days
     if (marsRef.current) {
       const marsSpeed = (2 * Math.PI) / (PLANET_DATA.mars.orbitalPeriod * timeScale)
-      const marsAngle = time * marsSpeed
+      const marsAngle = initialPositions.mars + (time * marsSpeed)
       marsRef.current.position.set(
         Math.cos(marsAngle) * PLANET_DISTANCES.mars,
         0,
@@ -393,7 +422,7 @@ export function AccurateSolarSystem({ timeScale = 0.2, showOrbits = false }: Sol
     // Jupiter - 11.9 years
     if (jupiterRef.current) {
       const jupiterSpeed = (2 * Math.PI) / (PLANET_DATA.jupiter.orbitalPeriod * timeScale)
-      const jupiterAngle = time * jupiterSpeed
+      const jupiterAngle = initialPositions.jupiter + (time * jupiterSpeed)
       jupiterRef.current.position.set(
         Math.cos(jupiterAngle) * PLANET_DISTANCES.jupiter,
         0,
@@ -405,7 +434,7 @@ export function AccurateSolarSystem({ timeScale = 0.2, showOrbits = false }: Sol
     // Saturn - 29.5 years
     if (saturnRef.current) {
       const saturnSpeed = (2 * Math.PI) / (PLANET_DATA.saturn.orbitalPeriod * timeScale)
-      const saturnAngle = time * saturnSpeed
+      const saturnAngle = initialPositions.saturn + (time * saturnSpeed)
       saturnRef.current.position.set(
         Math.cos(saturnAngle) * PLANET_DISTANCES.saturn,
         0,
@@ -417,7 +446,7 @@ export function AccurateSolarSystem({ timeScale = 0.2, showOrbits = false }: Sol
     // Uranus - 84 years (retrograde rotation)
     if (uranusRef.current) {
       const uranusSpeed = (2 * Math.PI) / (PLANET_DATA.uranus.orbitalPeriod * timeScale)
-      const uranusAngle = time * uranusSpeed
+      const uranusAngle = initialPositions.uranus + (time * uranusSpeed)
       uranusRef.current.position.set(
         Math.cos(uranusAngle) * PLANET_DISTANCES.uranus,
         0,
@@ -429,7 +458,7 @@ export function AccurateSolarSystem({ timeScale = 0.2, showOrbits = false }: Sol
     // Neptune - 165 years
     if (neptuneRef.current) {
       const neptuneSpeed = (2 * Math.PI) / (PLANET_DATA.neptune.orbitalPeriod * timeScale)
-      const neptuneAngle = time * neptuneSpeed
+      const neptuneAngle = initialPositions.neptune + (time * neptuneSpeed)
       neptuneRef.current.position.set(
         Math.cos(neptuneAngle) * PLANET_DISTANCES.neptune,
         0,
@@ -616,6 +645,12 @@ export function AccurateSolarSystem({ timeScale = 0.2, showOrbits = false }: Sol
           {/* Jupiter + Galilean Moons (Io, Europa, Ganymede, Callisto) */}
           <group ref={jupiterRef}>
             <mesh
+              onClick={(e) => {
+                e.stopPropagation()
+                const { setSceneMode } = useHybridStore.getState()
+                setSceneMode('jupiterExperience')
+                console.log('♃ Switching to Jupiter Wisdom Library')
+              }}
               onPointerOver={(e) => {
                 e.stopPropagation()
                 setHoveredBody('jupiter')

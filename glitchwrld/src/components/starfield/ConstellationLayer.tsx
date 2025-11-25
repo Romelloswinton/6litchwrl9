@@ -90,8 +90,7 @@ function ConstellationGroup({
 
   // Generate connection lines
   const lines = useMemo(() => {
-    if (!showLines) return []
-
+    // Always generate line data, but we'll control visibility separately
     return constellation.connections.map((conn, index) => {
       const start = constellation.stars[conn.from].position
       const end = constellation.stars[conn.to].position
@@ -105,7 +104,7 @@ function ConstellationGroup({
         color: new THREE.Color(constellation.accentColor)
       }
     })
-  }, [constellation, showLines, scale])
+  }, [constellation, scale])
 
   // Calculate label position (center of constellation)
   const labelPosition = useMemo(() => {
@@ -208,8 +207,8 @@ function ConstellationGroup({
         />
       </points>
 
-      {/* Constellation lines */}
-      {showLines && lines.map(line => (
+      {/* Constellation lines - Show only when hovered OR when global showLines is true */}
+      {(isHovered || showLines) && lines.map(line => (
         <Line
           key={line.key}
           points={line.points}

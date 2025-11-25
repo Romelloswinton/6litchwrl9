@@ -1,0 +1,66 @@
+.earth-spline-scene {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  background: #000011;
+  overflow: hidden;
+}
+
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  padding: 12px 24px;
+  background: rgba(135, 206, 235, 0.2);
+  border: 2px solid #87ceeb;
+  border-radius: 8px;
+  color: #87ceeb;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.back-button:hover {
+  background: rgba(135, 206, 235, 0.3);
+  border-color: #5fa9d4;
+  transform: translateX(-2px);
+  box-shadow: 0 4px 12px rgba(135, 206, 235, 0.3);
+}
+
+.back-button:active {
+  transform: translateX(-1px);
+  box-shadow: 0 2px 6px rgba(135, 206, 235, 0.2);
+}
+
+.error-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #ff6b6b;
+  font-size: 18px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  text-align: center;
+}
+
+.controls-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  padding: 10px 20px;
+  background: rgba(135, 206, 235, 0.15);
+  border: 1px solid rgba(135, 206, 235, 0.3);
+  border-radius: 6px;
+  color: #87ceeb;
+  font-size: 14px;
+  font-weight: 500;
+  backdrop-filter: blur(8px);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  pointer-events: none;
+}

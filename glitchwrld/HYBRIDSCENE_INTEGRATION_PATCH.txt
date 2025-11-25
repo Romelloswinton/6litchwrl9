@@ -1,0 +1,140 @@
+=================================================================
+HYBRID SCENE INTEGRATION PATCH
+=================================================================
+
+This file contains the exact changes needed to integrate the avatar
+system into HybridScene.tsx. Apply these manually if auto-editing fails.
+
+=================================================================
+STEP 1: ADD IMPORTS (around line 12)
+=================================================================
+
+FIND THIS LINE:
+import { GalaxyControls } from "../ui/GalaxyControls"
+
+ADD AFTER IT:
+import { AvatarControls } from "../ui/AvatarControls"
+
+FIND THIS LINE:
+import { GalaxyNebulaClouds } from "../effects/GalaxyNebulaClouds"
+
+ADD AFTER IT:
+import { AvatarController } from "../avatar/AvatarController"
+
+=================================================================
+STEP 2: ADD AVATAR TO SCENE (around line 105)
+=================================================================
+
+FIND THIS BLOCK:
+      {/* Accurate Solar System - All 8 planets with realistic proportions */}
+      <AccurateSolarSystem timeScale={0.3} showOrbits={false} />
+
+ADD AFTER IT:
+      {/* Avatar Game Mode System */}
+      <AvatarController />
+
+=================================================================
+STEP 3: ADD AVATAR UI CONTROLS (around line 222)
+=================================================================
+
+FIND THIS BLOCK:
+        {/* UI LAYER: Single Unified Control Panel */}
+        <GalaxyControls />
+
+ADD AFTER IT:
+        {/* Avatar Game Mode Controls */}
+        <AvatarControls />
+
+=================================================================
+COMPLETE MODIFIED SECTIONS
+=================================================================
+
+SECTION 1 - IMPORTS (lines 1-24):
+-------------------------------------------------------------------
+import { Suspense, useRef, useEffect, useCallback } from "react"
+import { Canvas } from "@react-three/fiber"
+import { OrbitControls, Stats } from "@react-three/drei"
+import {
+  EffectComposer,
+  Bloom,
+  Noise,
+  Vignette,
+} from "@react-three/postprocessing"
+import { LayerManager, Layer } from "./LayerManager"
+import { AccurateSolarSystem } from "../spline/AccurateSolarSystem"
+import { GalaxyControls } from "../ui/GalaxyControls"
+import { AvatarControls } from "../ui/AvatarControls"           // ← NEW
+import { KeyboardHelp } from "../ui/KeyboardHelp"
+import { ConstellationInfoPanel } from "../ui/ConstellationInfoPanel"
+import { MultiLayerStarfield } from "../starfield/MultiLayerStarfield"
+import { ConstellationLayer } from "../starfield/ConstellationLayer"
+import { GalaxyNebulaClouds } from "../effects/GalaxyNebulaClouds"
+import { AvatarController } from "../avatar/AvatarController"   // ← NEW
+import { useHybridStore } from "../../stores/hybridStore"
+import { useXRStore } from "../../stores/xrStore"
+import { XR } from "@react-three/xr"
+import { xrStore } from "../xr/XRModeSwitcher"
+
+import { usePerformanceMonitor } from "../../hooks/performance/usePerformanceMonitor"
+import { useKeyboardControls } from "../../hooks/camera/useKeyboardControls"
+-------------------------------------------------------------------
+
+SECTION 2 - SCENE CONTENT (around lines 104-108):
+-------------------------------------------------------------------
+      {/* Accurate Solar System - All 8 planets with realistic proportions */}
+      <AccurateSolarSystem timeScale={0.3} showOrbits={false} />
+
+      {/* Avatar Game Mode System */}                            // ← NEW
+      <AvatarController />                                       // ← NEW
+
+      {/* Camera Controls - disabled in XR mode */}
+      <OrbitControls
+-------------------------------------------------------------------
+
+SECTION 3 - UI LAYER (around lines 221-229):
+-------------------------------------------------------------------
+      </LayerManager>
+        {/* UI LAYER: Single Unified Control Panel */}
+        <GalaxyControls />
+
+        {/* Avatar Game Mode Controls */}                        // ← NEW
+        <AvatarControls />                                       // ← NEW
+
+        {/* Keyboard Help Overlay */}
+        <KeyboardHelp />
+-------------------------------------------------------------------
+
+=================================================================
+VERIFICATION
+=================================================================
+
+After applying these changes:
+
+1. Check that the file compiles without errors:
+   cd glitchwrld && npm run build
+
+2. Start the dev server:
+   npm run dev
+
+3. Open browser console and check for:
+   - No import errors
+   - No component rendering errors
+
+4. Test the avatar system:
+   - Press 'G' to enable game mode
+   - Use arrow keys to move
+   - Press 'C' to cycle camera modes
+   - Check Leva panel has "Avatar & Game Mode" section
+
+=================================================================
+ROLLBACK (if needed)
+=================================================================
+
+If something goes wrong, remove these lines:
+
+Line ~13: import { AvatarControls } from "../ui/AvatarControls"
+Line ~18: import { AvatarController } from "../avatar/AvatarController"
+Line ~107: <AvatarController />
+Line ~225: <AvatarControls />
+
+=================================================================

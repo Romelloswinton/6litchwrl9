@@ -20,7 +20,7 @@ export type LayerType =
   | "starfield-near"
   | "starfield-close"
   | "starfield-foreground"
-export type SceneMode = "galaxy" | "solarSystem"
+export type SceneMode = "galaxy" | "solarSystem" | "earthSpline" | "marsExperience" | "jupiterExperience" | "venusExperience" | "neptuneExperience"
 
 interface LayerConfig {
   visible: boolean
@@ -63,6 +63,7 @@ interface HybridState {
   // Spline integration
   splineScene: string | null
   splineModels: Record<string, any>
+  earthSplineUrl: string | null
 
   // Interaction
   hoveredObject: string | null
@@ -134,6 +135,7 @@ interface HybridState {
   setSplineScene: (scene: string | null) => void
   registerSplineModel: (id: string, model: any) => void
   unregisterSplineModel: (id: string) => void
+  setEarthSplineUrl: (url: string | null) => void
 
   // Interaction
   setHoveredObject: (object: string | null) => void
@@ -220,7 +222,7 @@ const initialState = {
   cameraPosition: new THREE.Vector3(0, 30, 70),
   cameraTarget: new THREE.Vector3(0, 0, 0),
   enableOrbitControls: true,
-  particleCount: 120000, // Increased from 100k to support richer starfield with constellations
+  particleCount: 3000, // Default star count for optimal performance and visuals
   galaxyRadius: 20, // Increased from 8 to properly encompass the solar system
   spiralArms: 4,
   spiralTightness: 2,
@@ -233,6 +235,7 @@ const initialState = {
   isAnimating: true,
   splineScene: null,
   splineModels: {},
+  earthSplineUrl: "https://prod.spline.design/2fkyMqdd8Dg45tKq/scene.splinecode",
   hoveredObject: null,
   selectedObject: null,
   fps: 60,
@@ -242,7 +245,7 @@ const initialState = {
   quantumSettings: defaultQuantumSettings,
   constellations: {
     enabled: true,
-    showLines: true,
+    showLines: false, // Lines hidden by default, shown on hover
     showLabels: true, // Enable labels by default for better UX
     filter: 'all' as 'all' | 'western' | 'eastern' | 'zodiac',
     lineOpacity: 0.4,
@@ -336,6 +339,7 @@ export const useHybridStore = create<HybridState>()(
         const { [id]: removed, ...rest } = state.splineModels
         return { splineModels: rest }
       }),
+    setEarthSplineUrl: (url) => set({ earthSplineUrl: url }),
 
     setHoveredObject: (object) => set({ hoveredObject: object }),
     setSelectedObject: (object) => set({ selectedObject: object }),

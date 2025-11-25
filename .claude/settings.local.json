@@ -2,21 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(npm install:*)",
-      "Bash(npm run build:*)",
-      "Bash(npx tsc:*)",
-      "Bash(git reset:*)",
-      "Bash(git ls-tree:*)",
-      "Bash(test:*)",
-      "Bash(git rm:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(git push:*)",
-      "Bash(git mv:*)",
-      "WebSearch",
-      "Bash(npm run type-check:*)",
       "Bash(npm run dev:*)",
-      "Bash(vercel --version:*)",
-      "Bash(vercel login)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nAdd interactive planet experiences: Mars & Jupiter with real-time alignment\n\n🌍 Core Features:\n- Real-time planetary alignment based on astronomical calculations\n- Planets positioned accurately using Keplerian orbital mechanics\n- Interactive experiences for Mars and Jupiter\n\n🔴 Mars Experience - Mission Planner:\n- Goal tracking system with categories (Exploration, Courage, Achievement, Learning)\n- Visual progress tracking with animated progress bars\n- Mission creation, completion, and deletion\n- 3D Mars scene with rotating planet backdrop\n- Responsive design for desktop and mobile\n\n♃ Jupiter Experience - Wisdom Library:\n- Knowledge tree with 6 diverse topics (Philosophy, Science, Art, Wisdom, Nature)\n- Big Questions generator for philosophical exploration\n- Category filtering and topic connections\n- Interactive knowledge cards with insights\n- 3D Jupiter scene with Great Red Spot and orbiting knowledge nodes\n\n⭐ Visual Enhancements:\n- Default star count reduced to 3,000 for optimal performance\n- Constellation lines hidden by default, shown on hover\n- Hover-to-reveal constellation patterns\n- Planetary alignment info panel with current date/time\n\n🎨 Technical Improvements:\n- Extended scene mode system to support planet-specific experiences\n- Modular planet component architecture\n- Smooth transitions between scenes\n- Educational astronomy facts for each planet\n\n📚 Documentation:\n- Comprehensive planet experience concept designs\n- Implementation guides and templates\n- Testing documentation\n- Future enhancement roadmap\n\n🚀 Generated with Claude Code (https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []

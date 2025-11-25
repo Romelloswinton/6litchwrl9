@@ -12,6 +12,7 @@ import { AccurateSolarSystem } from "../spline/AccurateSolarSystem"
 import { GalaxyControls } from "../ui/GalaxyControls"
 import { KeyboardHelp } from "../ui/KeyboardHelp"
 import { ConstellationInfoPanel } from "../ui/ConstellationInfoPanel"
+import { PlanetaryAlignmentInfo } from "../ui/PlanetaryAlignmentInfo"
 import { MultiLayerStarfield } from "../starfield/MultiLayerStarfield"
 import { ConstellationLayer } from "../starfield/ConstellationLayer"
 import { GalaxyNebulaClouds } from "../effects/GalaxyNebulaClouds"
@@ -226,6 +227,9 @@ export function HybridScene() {
 
         {/* Constellation Info Panel */}
         <ConstellationInfoPanel constellation={hoveredConstellation} />
+
+        {/* Planetary Alignment Info - Shows current date/time */}
+        <PlanetaryAlignmentInfo visible={true} />
       </LayerManager>
     </div>
   )

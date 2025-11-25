@@ -1,0 +1,523 @@
+.saturn-experience {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  background: linear-gradient(to bottom, #1a1308 0%, #2d2410 100%);
+  overflow: hidden;
+}
+
+.saturn-back {
+  background: rgba(227, 196, 142, 0.9);
+  border-color: #E3C48E;
+}
+
+.saturn-back:hover {
+  background: rgba(212, 175, 106, 1);
+  box-shadow: 0 4px 20px rgba(212, 175, 106, 0.5);
+}
+
+.saturn-canvas-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60%;
+  height: 100%;
+}
+
+.mastery-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40%;
+  height: 100vh;
+  background: rgba(26, 19, 8, 0.95);
+  border-left: 2px solid #E3C48E;
+  overflow-y: auto;
+  padding: 30px;
+  backdrop-filter: blur(20px);
+}
+
+.mastery-panel .panel-header h1 {
+  color: #E3C48E;
+  font-size: 32px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 15px rgba(227, 196, 142, 0.6);
+}
+
+.saturn-quote {
+  color: #D4AF6A;
+  font-style: italic;
+  font-size: 14px;
+  opacity: 0.9;
+  border-left: 3px solid #E3C48E;
+  padding-left: 15px;
+  margin: 15px 0;
+}
+
+/* Category Filter */
+.category-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.category-filter button {
+  background: rgba(227, 196, 142, 0.2);
+  border: 2px solid rgba(227, 196, 142, 0.3);
+  color: #E3C48E;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.category-filter button:hover {
+  background: rgba(227, 196, 142, 0.3);
+  border-color: #E3C48E;
+}
+
+.category-filter button.active {
+  background: rgba(212, 175, 106, 0.4);
+  border-color: #D4AF6A;
+  color: #D4AF6A;
+  box-shadow: 0 0 15px rgba(212, 175, 106, 0.3);
+}
+
+/* Skill Detail Section */
+.skill-detail-section {
+  background: rgba(227, 196, 142, 0.1);
+  border: 2px solid rgba(227, 196, 142, 0.3);
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 30px;
+}
+
+.skill-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.skill-icon-large {
+  font-size: 48px;
+}
+
+.skill-detail-header h2 {
+  font-size: 28px;
+  margin: 0 0 8px 0;
+}
+
+.skill-rank {
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid #E3C48E;
+  color: #E3C48E;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: inline-block;
+}
+
+/* Skill Stats */
+.skill-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.stat-box {
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(227, 196, 142, 0.3);
+  border-radius: 10px;
+  padding: 15px;
+  text-align: center;
+}
+
+.stat-label {
+  color: #D4AF6A;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  opacity: 0.8;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+/* Progress Section */
+.progress-section {
+  margin-bottom: 25px;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  color: #E3C48E;
+  font-size: 14px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.progress-bar-container {
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(227, 196, 142, 0.3);
+  border-radius: 20px;
+  height: 20px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  transition: width 0.5s ease;
+  border-radius: 18px;
+  box-shadow: 0 0 15px currentColor;
+}
+
+/* Log Practice Section */
+.log-practice-section {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(227, 196, 142, 0.2);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 25px;
+}
+
+.log-practice-section h3 {
+  color: #E3C48E;
+  font-size: 16px;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.log-input-group {
+  margin-bottom: 15px;
+}
+
+.log-input-group label {
+  display: block;
+  color: #D4AF6A;
+  font-size: 13px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.log-input-group input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(227, 196, 142, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  color: #E3C48E;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.log-input-group input:focus {
+  outline: none;
+  border-color: #E3C48E;
+  box-shadow: 0 0 10px rgba(227, 196, 142, 0.3);
+}
+
+.log-button {
+  width: 100%;
+  background: rgba(227, 196, 142, 0.2);
+  border: 2px solid #E3C48E;
+  color: #E3C48E;
+  padding: 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.log-button:hover {
+  background: rgba(227, 196, 142, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(227, 196, 142, 0.3);
+}
+
+/* Milestones Section */
+.milestones-section {
+  margin-bottom: 25px;
+}
+
+.milestones-section h3 {
+  color: #E3C48E;
+  font-size: 16px;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.milestones-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.milestone-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(227, 196, 142, 0.2);
+  border-radius: 10px;
+  padding: 15px;
+  transition: all 0.3s ease;
+}
+
+.milestone-item.achieved {
+  border-color: #4CAF50;
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.milestone-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid rgba(227, 196, 142, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: #E3C48E;
+  flex-shrink: 0;
+}
+
+.milestone-item.achieved .milestone-icon {
+  border-color: #4CAF50;
+  color: #4CAF50;
+  background: rgba(76, 175, 80, 0.2);
+}
+
+.milestone-info {
+  flex: 1;
+}
+
+.milestone-label {
+  color: #E3C48E;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.milestone-item.achieved .milestone-label {
+  color: #4CAF50;
+}
+
+.milestone-hours {
+  color: #D4AF6A;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* Skills Section */
+.skills-section {
+  margin-bottom: 30px;
+}
+
+.skills-section h2 {
+  color: #E3C48E;
+  font-size: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+}
+
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.skill-card {
+  background: rgba(227, 196, 142, 0.1);
+  border: 2px solid rgba(227, 196, 142, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.skill-card:hover {
+  border-color: #E3C48E;
+  box-shadow: 0 5px 25px rgba(227, 196, 142, 0.3);
+  transform: translateY(-3px);
+}
+
+.skill-card.selected {
+  border-width: 3px;
+  box-shadow: 0 8px 30px rgba(227, 196, 142, 0.5);
+  background: rgba(227, 196, 142, 0.2);
+}
+
+.skill-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.skill-icon {
+  font-size: 32px;
+}
+
+.skill-card-header h3 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.skill-card-level {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(227, 196, 142, 0.3);
+  border-radius: 20px;
+  padding: 6px 12px;
+  display: inline-block;
+  color: #E3C48E;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.skill-card-streak {
+  color: #FF6B35;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.skill-card-time {
+  color: #D4AF6A;
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+/* 3D Skill Labels */
+.skill-label-3d {
+  background: rgba(0, 0, 0, 0.9);
+  border: 2px solid #E3C48E;
+  border-radius: 8px;
+  padding: 8px 16px;
+  color: #E3C48E;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 4px 20px rgba(227, 196, 142, 0.5);
+}
+
+/* Saturn Facts */
+.saturn-facts {
+  background: rgba(167, 138, 79, 0.15);
+  border: 1px solid rgba(227, 196, 142, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 30px;
+}
+
+.saturn-facts h3 {
+  color: #E3C48E;
+  font-size: 18px;
+  margin-bottom: 15px;
+}
+
+.saturn-facts ul {
+  list-style: none;
+  padding: 0;
+}
+
+.saturn-facts li {
+  color: #D4AF6A;
+  font-size: 14px;
+  line-height: 2;
+  padding-left: 20px;
+  position: relative;
+}
+
+.saturn-facts li::before {
+  content: "♄";
+  position: absolute;
+  left: 0;
+  color: #E3C48E;
+}
+
+.saturn-facts strong {
+  color: #E3C48E;
+}
+
+/* Mobile responsive */
+@media (max-width: 1024px) {
+  .saturn-canvas-container {
+    width: 100%;
+    height: 40%;
+  }
+
+  .mastery-panel {
+    width: 100%;
+    height: 60%;
+    top: 40%;
+    border-left: none;
+    border-top: 2px solid #E3C48E;
+  }
+
+  .skills-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .skill-stats {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .category-filter {
+    justify-content: center;
+  }
+}
+
+/* Scrollbar styling */
+.mastery-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.mastery-panel::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.mastery-panel::-webkit-scrollbar-thumb {
+  background: rgba(227, 196, 142, 0.5);
+  border-radius: 4px;
+}
+
+.mastery-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(227, 196, 142, 0.8);
+}
+
+/* Animations */
+@keyframes level-up-pulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(227, 196, 142, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(227, 196, 142, 0.7);
+  }
+}
+
+.skill-card.selected {
+  animation: level-up-pulse 2s ease-in-out infinite;
+}

@@ -1,0 +1,349 @@
+/**
+ * Multi-Perspective Popover Styles
+ * Beautiful, space-themed interactive tooltip with perspective switching
+ */
+
+.multi-perspective-popover {
+  background: linear-gradient(135deg, rgba(10, 10, 30, 0.95) 0%, rgba(20, 20, 50, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  border: 2px solid;
+  border-radius: 16px;
+  padding: 0;
+  min-width: 420px;
+  max-width: 500px;
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.6),
+    0 0 60px rgba(135, 206, 235, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  animation: popoverFadeIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes popoverFadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Header */
+.popover-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+}
+
+.popover-symbol {
+  font-size: 32px;
+  filter: drop-shadow(0 0 8px currentColor);
+  animation: symbolPulse 3s ease-in-out infinite;
+}
+
+@keyframes symbolPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.9; }
+}
+
+.popover-planet-name {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 10px currentColor;
+}
+
+/* Perspective Tabs */
+.perspective-tabs {
+  display: flex;
+  gap: 0;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(135, 206, 235, 0.3) transparent;
+}
+
+.perspective-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.perspective-tabs::-webkit-scrollbar-thumb {
+  background: rgba(135, 206, 235, 0.3);
+  border-radius: 2px;
+}
+
+.perspective-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 8px;
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  min-width: 90px;
+  position: relative;
+  overflow: hidden;
+}
+
+.perspective-tab::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.perspective-tab:hover::before {
+  opacity: 1;
+}
+
+.perspective-tab:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.perspective-tab.active {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 4px 15px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.perspective-tab.active::before {
+  opacity: 1;
+}
+
+.tab-icon {
+  font-size: 20px;
+  filter: grayscale(0.3);
+  transition: all 0.3s ease;
+}
+
+.perspective-tab.active .tab-icon {
+  filter: grayscale(0);
+  transform: scale(1.1);
+}
+
+.tab-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.3px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.perspective-tab.active .tab-label {
+  font-weight: 700;
+}
+
+/* Content Area */
+.perspective-content {
+  padding: 20px;
+  animation: contentSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes contentSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.content-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.content-icon {
+  font-size: 24px;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.3));
+}
+
+.content-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.content-description {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: left;
+  font-weight: 400;
+}
+
+/* Highlights */
+.content-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.highlight-tag {
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+.highlight-tag:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Footer */
+.popover-footer {
+  padding: 12px 20px;
+  background: rgba(0, 0, 0, 0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+.footer-hint {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+  letter-spacing: 0.3px;
+}
+
+/* Compact Version */
+.compact-multi-perspective-popover {
+  background: linear-gradient(135deg, rgba(10, 10, 30, 0.95) 0%, rgba(20, 20, 50, 0.95) 100%);
+  backdrop-filter: blur(15px);
+  border: 2px solid;
+  border-radius: 12px;
+  padding: 12px 16px;
+  min-width: 280px;
+  max-width: 320px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.6),
+    0 0 40px rgba(135, 206, 235, 0.1);
+  animation: popoverFadeIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.compact-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.compact-symbol {
+  font-size: 24px;
+  filter: drop-shadow(0 0 6px currentColor);
+}
+
+.compact-planet-name {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.compact-icon {
+  font-size: 18px;
+  opacity: 0.8;
+}
+
+.compact-content {
+  margin-top: 8px;
+}
+
+.compact-description {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .multi-perspective-popover {
+    min-width: 320px;
+    max-width: 360px;
+  }
+
+  .perspective-tab {
+    min-width: 70px;
+    padding: 8px 6px;
+  }
+
+  .tab-icon {
+    font-size: 18px;
+  }
+
+  .tab-label {
+    font-size: 10px;
+  }
+
+  .content-description {
+    font-size: 13px;
+  }
+
+  .highlight-tag {
+    font-size: 10px;
+    padding: 5px 10px;
+  }
+}
+
+/* Dark mode enhancements */
+@media (prefers-color-scheme: dark) {
+  .multi-perspective-popover {
+    background: linear-gradient(135deg, rgba(5, 5, 20, 0.97) 0%, rgba(15, 15, 40, 0.97) 100%);
+  }
+
+  .compact-multi-perspective-popover {
+    background: linear-gradient(135deg, rgba(5, 5, 20, 0.97) 0%, rgba(15, 15, 40, 0.97) 100%);
+  }
+}
+
+/* Accessibility */
+.perspective-tab:focus {
+  outline: 2px solid rgba(135, 206, 235, 0.6);
+  outline-offset: 2px;
+}
+
+.perspective-tab:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Print styles */
+@media print {
+  .multi-perspective-popover,
+  .compact-multi-perspective-popover {
+    display: none;
+  }
+}
