@@ -14,7 +14,6 @@ import { EmotionalVenus } from '../planets/EmotionalVenus'
 import { RealisticPlanet } from '../planets/RealisticPlanet'
 import { CelestialTooltip, CompactCelestialTooltip } from '../ui/CelestialTooltip'
 import { getCelestialSymbolism } from '../../utils/data/celestialSymbolism'
-import { AsteroidBelt } from './AsteroidBelt'
 import {
   calculateAllPlanetPositions,
   getOrbitalAngleFromPosition,
@@ -631,15 +630,6 @@ export function AccurateSolarSystem({ timeScale = 0.2, showOrbits = false }: Sol
           <Moon moonData={MOON_DATA.deimos} parentRef={marsRef} time={time} timeScale={timeScale} hoveredBody={hoveredBody} setHoveredBody={setHoveredBody} />
         </>
       )}
-
-      {/* Asteroid Belt - Between Mars and Jupiter */}
-      <AsteroidBelt
-        innerRadius={15}
-        outerRadius={30}
-        asteroidCount={12}
-        thickness={2}
-        color="#A0826D"
-      />
 
       {/* Outer Planets */}
       {planets.showOuterPlanets && (

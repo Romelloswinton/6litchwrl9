@@ -114,7 +114,7 @@ export function TexturedBlackHole({
       {/* Main black hole sphere with texture */}
       <mesh ref={meshRef}>
         <sphereGeometry args={[radius, 128, 128]} />
-        {enableShader ? (
+        {enableShader && shaderMaterial ? (
           <primitive object={shaderMaterial} attach="material" />
         ) : (
           <meshStandardMaterial
