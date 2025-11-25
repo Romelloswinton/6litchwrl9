@@ -21,11 +21,12 @@ export function EarthSplineScene() {
 
     // CRITICAL: Disable Spline's built-in camera controls
     // This prevents the camera from responding to keyboard input
-    if (splineApp._camera) {
+    const camera = (splineApp as any)._camera
+    if (camera) {
       console.log('🎥 Disabling Spline camera controls...')
-      splineApp._camera.enableZoom = false
-      splineApp._camera.enableRotate = false
-      splineApp._camera.enablePan = false
+      camera.enableZoom = false
+      camera.enableRotate = false
+      camera.enablePan = false
     }
 
     // Also disable orbit controls if they exist
@@ -52,7 +53,7 @@ export function EarthSplineScene() {
       // Log all objects to help debug
       const allObjects = splineApp.getAllObjects()
       allObjects.forEach((obj: SPEObject) => {
-        console.log(`  - "${obj.name}" (type: ${obj.type})`)
+        console.log(`  - "${obj.name}" (type: ${(obj as any).type || 'unknown'})`)
       })
     }
   }

@@ -34,6 +34,7 @@ export function useAvatarMovement() {
     setIsMoving,
     setIsJumping,
     setIsFalling,
+    setIsGrounded,
     setRotation,
   } = useAvatarStore()
 

@@ -819,7 +819,9 @@ export function AccurateSolarSystem({ timeScale = 0.2, showOrbits = false }: Sol
         {hoveredBody === 'blackhole' && (
           <CompactCelestialTooltip
             name="⚫ Anomaly Detected"
-            type="Unknown"
+            symbol="⚫"
+            essence="Unknown"
+            color="#000000"
             position={[0, 3, 0]}
             visible={true}
           />

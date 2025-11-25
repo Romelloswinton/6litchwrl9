@@ -91,7 +91,7 @@ export const AVATAR_CONFIG = {
 
 // Helper to check if a key is a movement key
 export function isMovementKey(key: string): boolean {
-  return [
+  return ([
     AVATAR_CONFIG.KEYS.FORWARD_ARROW,
     AVATAR_CONFIG.KEYS.BACKWARD_ARROW,
     AVATAR_CONFIG.KEYS.LEFT_ARROW,
@@ -100,37 +100,37 @@ export function isMovementKey(key: string): boolean {
     AVATAR_CONFIG.KEYS.BACKWARD_WASD,
     AVATAR_CONFIG.KEYS.LEFT_WASD,
     AVATAR_CONFIG.KEYS.RIGHT_WASD,
-  ].includes(key)
+  ] as string[]).includes(key)
 }
 
 // Helper to check if key is forward movement
 export function isForwardKey(key: string): boolean {
-  return [
+  return ([
     AVATAR_CONFIG.KEYS.FORWARD_ARROW,
     AVATAR_CONFIG.KEYS.FORWARD_WASD,
-  ].includes(key)
+  ] as string[]).includes(key)
 }
 
 // Helper to check if key is backward movement
 export function isBackwardKey(key: string): boolean {
-  return [
+  return ([
     AVATAR_CONFIG.KEYS.BACKWARD_ARROW,
     AVATAR_CONFIG.KEYS.BACKWARD_WASD,
-  ].includes(key)
+  ] as string[]).includes(key)
 }
 
 // Helper to check if key is left movement
 export function isLeftKey(key: string): boolean {
-  return [
+  return ([
     AVATAR_CONFIG.KEYS.LEFT_ARROW,
     AVATAR_CONFIG.KEYS.LEFT_WASD,
-  ].includes(key)
+  ] as string[]).includes(key)
 }
 
 // Helper to check if key is right movement
 export function isRightKey(key: string): boolean {
-  return [
+  return ([
     AVATAR_CONFIG.KEYS.RIGHT_ARROW,
     AVATAR_CONFIG.KEYS.RIGHT_WASD,
-  ].includes(key)
+  ] as string[]).includes(key)
 }
