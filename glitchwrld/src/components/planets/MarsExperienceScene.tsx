@@ -5,10 +5,13 @@
  * Interactive mission planning and goal tracking inspired by Mars exploration
  */
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls, Stars, Text, Sphere, Html } from '@react-three/drei'
+import { Stars, Text, Sphere } from '@react-three/drei'
 import { useHybridStore } from '../../stores/hybridStore'
+import { ThirdPersonAvatar } from '../avatar/ThirdPersonAvatar'
+import { AudioControls } from '../ui/AudioControls'
+import { getAudioManager } from '../../utils/audio/AudioManager'
 import './MarsExperienceScene.css'
 
 // Mars surface component
@@ -26,7 +29,7 @@ function MarsSurface() {
       </mesh>
 
       {/* Mars planet in background */}
-      <Sphere args={[15, 64, 64]} position={[0, 0, -40]}>
+      <Sphere args={[15, 32, 32]} position={[0, 0, -40]}>
         <meshStandardMaterial
           color="#CD5C5C"
           roughness={0.8}
@@ -105,6 +108,35 @@ function GoalCard({ goal, onToggle, onDelete }: {
 
 export function MarsExperienceScene() {
   const { setSceneMode } = useHybridStore()
+  const [audioStarted, setAudioStarted] = useState(false)
+
+  // Initialize planet audio
+  useEffect(() => {
+    const audioManager = getAudioManager()
+    const startAudio = async () => {
+      if (audioStarted) return
+      try {
+        setAudioStarted(true)
+        await audioManager.play('planet')
+        console.log('🎵 Started planet ambient audio')
+      } catch (error) {
+        console.warn('Audio autoplay blocked. Click to enable.', error)
+        setAudioStarted(false) // Allow retry on error
+      }
+    }
+    startAudio()
+
+    const handleClick = () => {
+      if (!audioStarted) {
+        startAudio()
+        document.removeEventListener('click', handleClick)
+      }
+    }
+    document.addEventListener('click', handleClick)
+
+    return () => document.removeEventListener('click', handleClick)
+  }, [])
+
   const [goals, setGoals] = useState<Goal[]>([
     {
       id: '1',
@@ -174,15 +206,21 @@ export function MarsExperienceScene() {
           camera={{ position: [0, 5, 20], fov: 60 }}
           shadows
         >
-          <ambientLight intensity={0.3} />
-          <pointLight position={[10, 10, 10]} intensity={1} castShadow />
-          <directionalLight position={[-10, 10, 5]} intensity={0.5} color="#FFA500" />
+          <ambientLight intensity={0.4} />
+          <pointLight position={[10, 10, 10]} intensity={1.5} castShadow />
+          <directionalLight position={[-10, 10, 5]} intensity={0.6} color="#FFA500" />
 
           <MarsSurface />
 
+          {/* Controllable Avatar */}
+          <ThirdPersonAvatar
+            position={[0, 1, 5]}
+            color="#FF6B35"
+          />
+
           {/* 3D Mission text */}
           <Text
-            position={[0, 3, 0]}
+            position={[0, 3, -5]}
             fontSize={1.5}
             color="#FF6B6B"
             anchorX="center"
@@ -194,7 +232,7 @@ export function MarsExperienceScene() {
           </Text>
 
           <Text
-            position={[0, 1.5, 0]}
+            position={[0, 1.5, -5]}
             fontSize={0.4}
             color="#FFD700"
             anchorX="center"
@@ -202,15 +240,13 @@ export function MarsExperienceScene() {
           >
             Conquer Your Mountains
           </Text>
-
-          <OrbitControls
-            enableZoom={true}
-            enablePan={false}
-            maxPolarAngle={Math.PI / 2}
-            minDistance={10}
-            maxDistance={40}
-          />
         </Canvas>
+
+        {/* Controls hint */}
+        <div className="controls-hint">
+          <p>🎮 Use WASD or Arrow Keys to move</p>
+          <p>⇧ Shift to sprint | Space to jump</p>
+        </div>
       </div>
 
       {/* Mission Control Panel */}
@@ -314,6 +350,9 @@ export function MarsExperienceScene() {
           </ul>
         </div>
       </div>
+
+      {/* Audio Controls */}
+      <AudioControls />
     </div>
   )
 }

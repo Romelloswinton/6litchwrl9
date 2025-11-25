@@ -1,0 +1,349 @@
+/* Black Hole Experience Scene Styles */
+
+.blackhole-experience {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  background: #000000;
+  overflow: hidden;
+  position: relative;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Back Button */
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid #ff6600;
+  color: #ff9944;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.back-button:hover {
+  background: rgba(255, 102, 0, 0.2);
+  border-color: #ff9944;
+  color: #ffbb77;
+  transform: translateX(-3px);
+}
+
+/* Canvas Container */
+.blackhole-canvas-container {
+  width: 60%;
+  height: 100%;
+  position: relative;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.blackhole-canvas-container.expanded {
+  width: 100%;
+}
+
+/* Panel Toggle Button */
+.panel-toggle-btn {
+  position: absolute;
+  top: 50%;
+  right: 40%;
+  transform: translateY(-50%);
+  z-index: 900;
+  background: rgba(0, 0, 0, 0.9);
+  border: 2px solid #ff6600;
+  color: #ff9944;
+  width: 40px;
+  height: 60px;
+  border-radius: 8px 0 0 8px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.panel-toggle-btn.collapsed {
+  right: 0;
+  border-radius: 8px 0 0 8px;
+}
+
+.panel-toggle-btn:hover {
+  background: rgba(255, 102, 0, 0.3);
+  border-color: #ff9944;
+  color: #ffbb77;
+}
+
+/* Information Panel */
+.blackhole-panel {
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a0a00 100%);
+  border-left: 2px solid #ff6600;
+  overflow-y: auto;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(0);
+  position: relative;
+}
+
+.blackhole-panel.collapsed {
+  transform: translateX(100%);
+}
+
+/* Panel Header */
+.panel-header {
+  background: linear-gradient(180deg, rgba(255, 102, 0, 0.2) 0%, transparent 100%);
+  padding: 30px;
+  border-bottom: 2px solid rgba(255, 102, 0, 0.3);
+  text-align: center;
+}
+
+.panel-header h1 {
+  color: #ff9944;
+  font-size: 36px;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  text-shadow: 0 0 20px rgba(255, 102, 0, 0.6);
+}
+
+.panel-subtitle {
+  color: #ff6600;
+  font-size: 16px;
+  font-weight: 400;
+  margin: 0;
+  opacity: 0.9;
+}
+
+/* Panel Content */
+.panel-content {
+  padding: 30px;
+}
+
+/* Info Section */
+.info-section {
+  margin-bottom: 40px;
+}
+
+.info-section h2 {
+  color: #ff9944;
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+  padding-bottom: 10px;
+  border-bottom: 2px solid rgba(255, 102, 0, 0.3);
+}
+
+/* Info Grid */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.info-card {
+  background: rgba(255, 102, 0, 0.1);
+  border: 1px solid rgba(255, 102, 0, 0.3);
+  border-radius: 8px;
+  padding: 15px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.info-card:hover {
+  background: rgba(255, 102, 0, 0.15);
+  border-color: rgba(255, 102, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+.info-label {
+  color: #ff6600;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.info-value {
+  color: #ff9944;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 5px;
+  text-shadow: 0 0 10px rgba(255, 102, 0, 0.4);
+}
+
+.info-description {
+  color: #ffbb77;
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+/* Fact List */
+.fact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fact-item {
+  display: flex;
+  gap: 15px;
+  background: rgba(255, 102, 0, 0.05);
+  border: 1px solid rgba(255, 102, 0, 0.2);
+  border-radius: 8px;
+  padding: 15px;
+  transition: all 0.3s ease;
+}
+
+.fact-item:hover {
+  background: rgba(255, 102, 0, 0.1);
+  border-color: rgba(255, 102, 0, 0.4);
+  transform: translateX(5px);
+}
+
+.fact-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.fact-text {
+  flex: 1;
+}
+
+.fact-text strong {
+  color: #ff9944;
+  font-size: 16px;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.fact-text p {
+  color: #ffbb77;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+  opacity: 0.9;
+}
+
+/* Controls List */
+.controls-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.control-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 102, 0, 0.05);
+  border: 1px solid rgba(255, 102, 0, 0.2);
+  border-radius: 6px;
+  padding: 12px 15px;
+}
+
+.control-key {
+  color: #ff9944;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+.control-action {
+  color: #ffbb77;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* Warning Box */
+.warning-box {
+  display: flex;
+  gap: 15px;
+  background: rgba(255, 0, 0, 0.1);
+  border: 2px solid rgba(255, 102, 0, 0.5);
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 30px;
+}
+
+.warning-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.warning-text strong {
+  color: #ff6600;
+  font-size: 16px;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.warning-text p {
+  color: #ffbb77;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+  opacity: 0.95;
+}
+
+/* Scrollbar Styling */
+.blackhole-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.blackhole-panel::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.blackhole-panel::-webkit-scrollbar-thumb {
+  background: rgba(255, 102, 0, 0.5);
+  border-radius: 4px;
+}
+
+.blackhole-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 102, 0, 0.7);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .blackhole-canvas-container {
+    width: 100%;
+  }
+
+  .blackhole-panel {
+    position: absolute;
+    width: 90%;
+    max-width: 400px;
+    right: 0;
+    height: 100%;
+    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .panel-toggle-btn {
+    right: 90%;
+  }
+
+  .panel-toggle-btn.collapsed {
+    right: 0;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .back-button {
+    top: 10px;
+    left: 10px;
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+}

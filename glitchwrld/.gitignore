@@ -12,6 +12,17 @@ dist
 dist-ssr
 *.local
 
+# Environment Variables - SECURITY CRITICAL
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+.env.*.local
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

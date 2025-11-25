@@ -1,4 +1,4 @@
-import { useControls, folder, Leva } from "leva"
+import { useControls, folder, Leva, button } from "leva"
 import { useHybridStore } from "../../stores/hybridStore"
 import { SplineHelpers } from "../../utils/spline/splineHelpers"
 
@@ -46,19 +46,24 @@ export function GalaxyControls() {
   } = useHybridStore()
 
   useControls({
-    // Scene Mode
+    // Scene Mode with Planet Experiences
     sceneMode: {
       value: sceneMode,
       label: "Scene Mode",
       options: {
-        "Solar System": "solarSystem",
-        Galaxy: "galaxy",
+        "🌌 Solar System": "solarSystem",
+        "🌀 Galaxy": "galaxy",
+        "🌍 Earth Portfolio": "earthSpline",
+        "🔴 Mars Mission": "marsExperience",
+        "♃ Jupiter Wisdom": "jupiterExperience",
+        "♄ Saturn Mastery": "saturnExperience",
+        "🕳️ Black Hole": "blackHoleExperience",
       },
       onChange: (value) => setSceneMode(value),
     },
 
     // Galaxy Settings Folder
-    Galaxy: folder({
+    "🌀 Galaxy Settings": folder({
       particleCount: {
         value: particleCount,
         label: "Particles",
@@ -102,7 +107,7 @@ export function GalaxyControls() {
     }),
 
     // Colors Folder
-    Colors: folder({
+    "🎨 Colors": folder({
       coreColor: {
         value: coreColor,
         label: "Core",
@@ -121,7 +126,7 @@ export function GalaxyControls() {
     }),
 
     // Effects Folder
-    Effects: folder({
+    "✨ Effects": folder({
       bloomIntensity: {
         value: bloomIntensity,
         label: "Bloom",
@@ -146,20 +151,20 @@ export function GalaxyControls() {
     }),
 
     // Constellations Folder
-    Constellations: folder({
+    "⭐ Constellations": folder({
       constellationsEnabled: {
         value: constellations.enabled,
-        label: "Show",
+        label: "Show Constellations",
         onChange: (value) => setConstellationEnabled(value),
       },
       showLines: {
         value: constellations.showLines,
-        label: "Lines",
+        label: "Show Lines",
         onChange: (value) => setConstellationShowLines(value),
       },
       showLabels: {
         value: constellations.showLabels,
-        label: "Labels",
+        label: "Show Labels",
         onChange: (value) => setConstellationShowLabels(value),
       },
       lineOpacity: {
@@ -173,10 +178,10 @@ export function GalaxyControls() {
     }),
 
     // Nebula Folder
-    Nebula: folder({
+    "☁️ Nebula Clouds": folder({
       nebulaEnabled: {
         value: nebulaClouds.enabled,
-        label: "Show Clouds",
+        label: "Show Nebula Clouds",
         onChange: (value) => setNebulaEnabled(value),
       },
       cloudCount: {
@@ -189,7 +194,7 @@ export function GalaxyControls() {
       },
       opacity: {
         value: nebulaClouds.opacity,
-        label: "Opacity",
+        label: "Cloud Opacity",
         min: 0,
         max: 1,
         step: 0.05,
@@ -198,21 +203,26 @@ export function GalaxyControls() {
     }),
 
     // Planets Folder
-    Planets: folder({
+    "🪐 Planets": folder({
       showInnerPlanets: {
         value: planets.showInnerPlanets,
-        label: "Inner Planets (M-V-E-M)",
+        label: "☿♀🜨♂ Inner Planets",
         onChange: (value) => setShowInnerPlanets(value),
       },
       showOuterPlanets: {
         value: planets.showOuterPlanets,
-        label: "Outer Planets (J-S-U-N)",
+        label: "♃♄⛢♆ Outer Planets",
         onChange: (value) => setShowOuterPlanets(value),
+      },
+      "_info": {
+        value: "Click any planet to enter its interactive experience!",
+        label: "💡 Tip",
+        disabled: true,
       },
     }),
 
     // Spline Models Folder
-    "Spline Models": folder({
+    "🚀 Spline Models": folder({
       splineScene: {
         value: splineScene || SplineHelpers.DEFAULT_SPLINE_URLS.main,
         label: "Model",
@@ -226,6 +236,27 @@ export function GalaxyControls() {
         },
         onChange: (value) => setSplineScene(value),
       },
+    }),
+
+    // Quick Actions
+    "⚡ Quick Actions": folder({
+      "Go to Mars": button(() => setSceneMode("marsExperience")),
+      "Go to Jupiter": button(() => setSceneMode("jupiterExperience")),
+      "Go to Saturn": button(() => setSceneMode("saturnExperience")),
+      "Back to Solar System": button(() => setSceneMode("solarSystem")),
+    }),
+
+    // Export Tools
+    "📦 Export Tools": folder({
+      exportGLB: button(() => {
+        // @ts-ignore
+        if (window.exportGLB) {
+          // @ts-ignore
+          window.exportGLB()
+        } else {
+          console.warn("Export function not available yet")
+        }
+      }),
     }),
   })
 

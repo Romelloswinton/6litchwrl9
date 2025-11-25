@@ -20,7 +20,7 @@ export type LayerType =
   | "starfield-near"
   | "starfield-close"
   | "starfield-foreground"
-export type SceneMode = "galaxy" | "solarSystem" | "earthSpline" | "marsExperience" | "jupiterExperience" | "venusExperience" | "neptuneExperience"
+export type SceneMode = "galaxy" | "solarSystem" | "earthSpline" | "marsExperience" | "jupiterExperience" | "saturnExperience" | "venusExperience" | "neptuneExperience" | "blackHoleExperience"
 
 interface LayerConfig {
   visible: boolean

@@ -1,0 +1,163 @@
+/* Audio Controls Styles */
+
+.audio-controls {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid rgba(135, 206, 235, 0.5);
+  border-radius: 30px;
+  padding: 8px 12px;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.audio-controls:hover {
+  border-color: rgba(135, 206, 235, 0.8);
+  box-shadow: 0 0 20px rgba(135, 206, 235, 0.3);
+}
+
+/* Mute/Unmute Button */
+.audio-toggle-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+  filter: grayscale(0.2);
+}
+
+.audio-toggle-btn:hover {
+  transform: scale(1.15);
+  filter: grayscale(0);
+}
+
+.audio-toggle-btn:active {
+  transform: scale(0.95);
+}
+
+/* Slider Container */
+.audio-slider-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+  width: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.audio-controls.expanded .audio-slider-container {
+  opacity: 1;
+  width: 140px;
+}
+
+/* Volume Slider */
+.audio-slider {
+  width: 100px;
+  height: 4px;
+  background: rgba(135, 206, 235, 0.3);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.audio-slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #87ceeb;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 8px rgba(135, 206, 235, 0.5);
+}
+
+.audio-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  background: #a0d8f0;
+  box-shadow: 0 0 12px rgba(135, 206, 235, 0.8);
+}
+
+.audio-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: #87ceeb;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 8px rgba(135, 206, 235, 0.5);
+}
+
+.audio-slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  background: #a0d8f0;
+  box-shadow: 0 0 12px rgba(135, 206, 235, 0.8);
+}
+
+.audio-slider:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.audio-slider:disabled::-webkit-slider-thumb {
+  cursor: not-allowed;
+  background: #666;
+  box-shadow: none;
+}
+
+.audio-slider:disabled::-moz-range-thumb {
+  cursor: not-allowed;
+  background: #666;
+  box-shadow: none;
+}
+
+/* Volume Label */
+.volume-label {
+  color: #87ceeb;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+  min-width: 35px;
+  text-align: right;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .audio-controls {
+    bottom: 20px;
+    right: 20px;
+    padding: 6px 10px;
+  }
+
+  .audio-toggle-btn {
+    font-size: 20px;
+  }
+
+  .audio-controls.expanded .audio-slider-container {
+    width: 120px;
+  }
+
+  .audio-slider {
+    width: 80px;
+  }
+}
+
+/* Compact mode when not expanded */
+.audio-controls:not(.expanded) {
+  padding: 8px 16px;
+  border-radius: 50%;
+}

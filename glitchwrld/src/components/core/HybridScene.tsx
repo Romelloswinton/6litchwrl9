@@ -23,6 +23,9 @@ import { xrStore } from "../xr/XRModeSwitcher"
 
 import { usePerformanceMonitor } from "../../hooks/performance/usePerformanceMonitor"
 import { useKeyboardControls } from "../../hooks/camera/useKeyboardControls"
+import { AudioControls } from "../ui/AudioControls"
+import { getAudioManager } from "../../utils/audio/AudioManager"
+import { SceneExporter } from "../utils/SceneExporter"
 
 function PerformanceMonitor() {
   usePerformanceMonitor()
@@ -63,11 +66,13 @@ function SceneContent() {
         distance={250}
         decay={1.8}
         color="#FFF8DC"
+        castShadow={false}
       />
       <directionalLight
         intensity={0.4}
         position={[15, 12, 10]}
         color="#ffffff"
+        castShadow={false}
       />
       {/* Subtle rim lighting for depth */}
       <pointLight
@@ -76,6 +81,7 @@ function SceneContent() {
         distance={150}
         decay={2}
         color="#4169e1"
+        castShadow={false}
       />
 
       {/* Multi-Layer Starfield - Single unified starfield with depth */}
@@ -142,7 +148,54 @@ function SceneContent() {
 
 export function HybridScene() {
   const containerRef = useRef<HTMLDivElement>(null)
-  const { setIsLoading, hoveredConstellation } = useHybridStore()
+  const { setIsLoading, hoveredConstellation, sceneMode } = useHybridStore()
+
+  // Initialize audio on mount and handle scene changes
+  useEffect(() => {
+    const audioManager = getAudioManager()
+
+    // Start audio after a short delay to handle browser autoplay policies
+    const startAudio = async () => {
+      try {
+        // For galaxy mode, try to use the space ambient audio file
+        // For solar system, use procedural audio
+        if (sceneMode === 'galaxy') {
+          try {
+            // Try to load the space ambient audio file
+            await audioManager.playFile('/audio/space-ambient.mp3')
+            console.log('🎵 Started space ambient audio from file')
+          } catch (error) {
+            // Fallback to procedural audio if file not found
+            console.warn('Space ambient audio file not found, using procedural audio', error)
+            await audioManager.play('galaxy')
+            console.log('🎵 Started procedural galaxy ambient audio')
+          }
+        } else {
+          // Solar system uses procedural audio
+          await audioManager.play('solarSystem')
+          console.log('🎵 Started solarSystem ambient audio')
+        }
+      } catch (error) {
+        console.warn('Audio autoplay blocked. Click anywhere to enable audio.', error)
+      }
+    }
+
+    // Start audio immediately
+    startAudio()
+
+    // Also add click listener to ensure audio starts on user interaction
+    const handleUserInteraction = () => {
+      startAudio()
+      document.removeEventListener('click', handleUserInteraction)
+    }
+    document.addEventListener('click', handleUserInteraction)
+
+    // Cleanup on unmount
+    return () => {
+      document.removeEventListener('click', handleUserInteraction)
+      // Note: We don't stop audio here to allow it to continue across scenes
+    }
+  }, [sceneMode])
 
   // WebGL context handlers
   const r3fContextLostHandler = useCallback((event: Event) => {
@@ -174,7 +227,7 @@ export function HybridScene() {
             camera={{
               position: [0, 30, 70],
               fov: 65,
-              near: 0.01,
+              near: 0.5,
               far: 2000,
             }}
             gl={{
@@ -213,6 +266,7 @@ export function HybridScene() {
           >
             <Stats />
             <PerformanceMonitor />
+            <SceneExporter />
             <Suspense fallback={null}>
               <SceneContent />
             </Suspense>
@@ -230,6 +284,9 @@ export function HybridScene() {
 
         {/* Planetary Alignment Info - Shows current date/time */}
         <PlanetaryAlignmentInfo visible={true} />
+
+        {/* Audio Controls */}
+        <AudioControls />
       </LayerManager>
     </div>
   )

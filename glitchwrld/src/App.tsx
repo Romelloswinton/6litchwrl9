@@ -4,6 +4,7 @@ import { PortfolioScene } from './components/portfolio/PortfolioScene'
 import { MarsExperienceScene } from './components/planets/MarsExperienceScene'
 import { JupiterExperienceScene } from './components/planets/JupiterExperienceScene'
 import { SaturnExperienceScene } from './components/planets/SaturnExperienceScene'
+import { BlackHoleExperienceScene } from './components/scenes/BlackHoleExperienceScene'
 import { LoadingScreen } from './components/ui/LoadingScreen'
 import { ErrorBoundary } from './components/core/ErrorBoundary'
 import { XRModeSwitcher } from './components/xr/XRModeSwitcher'
@@ -39,6 +40,26 @@ function App() {
       <ErrorBoundary>
         <Suspense fallback={<LoadingScreen />}>
           <JupiterExperienceScene />
+        </Suspense>
+      </ErrorBoundary>
+    )
+  }
+
+  if (sceneMode === 'saturnExperience') {
+    return (
+      <ErrorBoundary>
+        <Suspense fallback={<LoadingScreen />}>
+          <SaturnExperienceScene />
+        </Suspense>
+      </ErrorBoundary>
+    )
+  }
+
+  if (sceneMode === 'blackHoleExperience') {
+    return (
+      <ErrorBoundary>
+        <Suspense fallback={<LoadingScreen />}>
+          <BlackHoleExperienceScene />
         </Suspense>
       </ErrorBoundary>
     )

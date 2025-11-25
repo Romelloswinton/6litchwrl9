@@ -5,10 +5,12 @@
  * Interactive knowledge exploration and big-picture thinking
  */
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Stars, Sphere, Text, Html } from '@react-three/drei'
 import { useHybridStore } from '../../stores/hybridStore'
+import { AudioControls } from '../ui/AudioControls'
+import { getAudioManager } from '../../utils/audio/AudioManager'
 import * as THREE from 'three'
 import './JupiterExperienceScene.css'
 
@@ -123,7 +125,7 @@ function JupiterScene({ selectedNode }: { selectedNode: KnowledgeNode | null }) 
   return (
     <group>
       {/* Jupiter planet */}
-      <Sphere args={[8, 64, 64]} position={[0, 0, -20]}>
+      <Sphere args={[8, 32, 32]} position={[0, 0, -20]}>
         <meshStandardMaterial
           color="#C88B3A"
           roughness={0.6}
@@ -133,7 +135,7 @@ function JupiterScene({ selectedNode }: { selectedNode: KnowledgeNode | null }) 
       </Sphere>
 
       {/* Great Red Spot */}
-      <Sphere args={[1.5, 32, 32]} position={[6, 0, -20]}>
+      <Sphere args={[1.5, 16, 16]} position={[6, 0, -20]}>
         <meshStandardMaterial
           color="#FF6B6B"
           roughness={0.4}
@@ -152,7 +154,7 @@ function JupiterScene({ selectedNode }: { selectedNode: KnowledgeNode | null }) 
 
         return (
           <group key={node.id} position={[x, 0, z - 20]}>
-            <Sphere args={[isSelected ? 1.2 : 0.8, 32, 32]}>
+            <Sphere args={[isSelected ? 1.2 : 0.8, 16, 16]}>
               <meshStandardMaterial
                 color={node.color}
                 roughness={0.5}
@@ -275,6 +277,35 @@ export function JupiterExperienceScene() {
   const [selectedNode, setSelectedNode] = useState<KnowledgeNode | null>(KNOWLEDGE_NODES[0])
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
   const [randomQuestion, setRandomQuestion] = useState(BIG_QUESTIONS[0])
+  const [isPanelCollapsed, setIsPanelCollapsed] = useState(false)
+  const [audioStarted, setAudioStarted] = useState(false)
+
+  // Initialize planet audio
+  useEffect(() => {
+    const audioManager = getAudioManager()
+    const startAudio = async () => {
+      if (audioStarted) return
+      try {
+        setAudioStarted(true)
+        await audioManager.play('planet')
+        console.log('🎵 Started planet ambient audio')
+      } catch (error) {
+        console.warn('Audio autoplay blocked. Click to enable.', error)
+        setAudioStarted(false) // Allow retry on error
+      }
+    }
+    startAudio()
+
+    const handleClick = () => {
+      if (!audioStarted) {
+        startAudio()
+        document.removeEventListener('click', handleClick)
+      }
+    }
+    document.addEventListener('click', handleClick)
+
+    return () => document.removeEventListener('click', handleClick)
+  }, [])
 
   const filteredNodes = useMemo(() => {
     if (categoryFilter === 'all') return KNOWLEDGE_NODES
@@ -304,7 +335,7 @@ export function JupiterExperienceScene() {
       </button>
 
       {/* 3D Scene */}
-      <div className="jupiter-canvas-container">
+      <div className={`jupiter-canvas-container ${isPanelCollapsed ? 'expanded' : ''}`}>
         <Canvas
           camera={{ position: [0, 10, 30], fov: 60 }}
         >
@@ -324,8 +355,17 @@ export function JupiterExperienceScene() {
         </Canvas>
       </div>
 
+      {/* Panel Toggle Button */}
+      <button
+        className={`panel-toggle-btn ${isPanelCollapsed ? 'collapsed' : ''}`}
+        onClick={() => setIsPanelCollapsed(!isPanelCollapsed)}
+        title={isPanelCollapsed ? 'Show Wisdom Panel' : 'Hide Wisdom Panel'}
+      >
+        {isPanelCollapsed ? '◀' : '▶'}
+      </button>
+
       {/* Wisdom Panel */}
-      <div className="wisdom-panel">
+      <div className={`wisdom-panel ${isPanelCollapsed ? 'collapsed' : ''}`}>
         <div className="panel-header">
           <h1>♃ Wisdom Library</h1>
           <p className="jupiter-quote">
@@ -433,6 +473,9 @@ export function JupiterExperienceScene() {
           </ul>
         </div>
       </div>
+
+      {/* Audio Controls */}
+      <AudioControls />
     </div>
   )
 }

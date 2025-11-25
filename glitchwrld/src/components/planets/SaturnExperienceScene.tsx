@@ -9,6 +9,8 @@ import { useState, useMemo, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Stars, Sphere, Text, Torus, Html } from '@react-three/drei'
 import { useHybridStore } from '../../stores/hybridStore'
+import { AudioControls } from '../ui/AudioControls'
+import { getAudioManager } from '../../utils/audio/AudioManager'
 import * as THREE from 'three'
 import './SaturnExperienceScene.css'
 
@@ -154,7 +156,7 @@ function SaturnScene({ selectedSkill }: { selectedSkill: Skill | null }) {
   return (
     <group>
       {/* Saturn planet */}
-      <Sphere args={[6, 64, 64]} position={[0, 0, -15]}>
+      <Sphere args={[6, 32, 32]} position={[0, 0, -15]}>
         <meshStandardMaterial
           color="#E3C48E"
           roughness={0.7}
@@ -209,7 +211,7 @@ function SaturnScene({ selectedSkill }: { selectedSkill: Skill | null }) {
 
         return (
           <group key={skill.id} position={[x, 0, z - 15]}>
-            <Sphere args={[size, 32, 32]}>
+            <Sphere args={[size, 16, 16]}>
               <meshStandardMaterial
                 color={skill.color}
                 roughness={0.4}
@@ -271,8 +273,35 @@ export function SaturnExperienceScene() {
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(SAMPLE_SKILLS[0])
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
   const [logMinutes, setLogMinutes] = useState<number>(30)
-  const [logNotes, setLogNotes] = useState<string>('')
-  const [showAddSkill, setShowAddSkill] = useState(false)
+  // const [showAddSkill, setShowAddSkill] = useState(false) // TODO: Implement custom skill addition feature
+  const [audioStarted, setAudioStarted] = useState(false)
+
+  // Initialize planet audio
+  useEffect(() => {
+    const audioManager = getAudioManager()
+    const startAudio = async () => {
+      if (audioStarted) return
+      try {
+        setAudioStarted(true)
+        await audioManager.play('planet')
+        console.log('🎵 Started planet ambient audio')
+      } catch (error) {
+        console.warn('Audio autoplay blocked. Click to enable.', error)
+        setAudioStarted(false) // Allow retry on error
+      }
+    }
+    startAudio()
+
+    const handleClick = () => {
+      if (!audioStarted) {
+        startAudio()
+        document.removeEventListener('click', handleClick)
+      }
+    }
+    document.addEventListener('click', handleClick)
+
+    return () => document.removeEventListener('click', handleClick)
+  }, [])
 
   // Filter skills by category
   const filteredSkills = useMemo(() => {
@@ -318,7 +347,6 @@ export function SaturnExperienceScene() {
     setSkills(updatedSkills)
     setSelectedSkill(updatedSkills.find(s => s.id === selectedSkill.id) || null)
     setLogMinutes(30)
-    setLogNotes('')
   }
 
   // Get next milestone
@@ -542,6 +570,9 @@ export function SaturnExperienceScene() {
           </ul>
         </div>
       </div>
+
+      {/* Audio Controls */}
+      <AudioControls />
     </div>
   )
 }
